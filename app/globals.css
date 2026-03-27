@@ -57,6 +57,14 @@ body {
   animation: slide-up 0.4s ease-out forwards;
 }
 
+@keyframes scan-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+.animate-scan-pulse {
+  animation: scan-pulse 0.6s ease-in-out forwards;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

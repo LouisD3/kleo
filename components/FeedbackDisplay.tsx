@@ -1,7 +1,7 @@
 'use client';
 
 import { EvaluationResult } from '@/lib/types';
-import ConceptChecklist from './ConceptChecklist';
+import StaggeredChecklist from './StaggeredChecklist';
 
 interface FeedbackDisplayProps {
   evaluation: EvaluationResult;
@@ -13,7 +13,7 @@ export default function FeedbackDisplay({ evaluation, accentColor = '#1CB0F6' }:
     <div className="space-y-4 w-full">
       {/* Concept-by-concept checklist */}
       {evaluation.conceptChecks && evaluation.conceptChecks.length > 0 && (
-        <ConceptChecklist conceptChecks={evaluation.conceptChecks} accentColor={accentColor} />
+        <StaggeredChecklist conceptChecks={evaluation.conceptChecks} />
       )}
 
       {/* What they got right */}

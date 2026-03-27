@@ -1,6 +1,17 @@
 export type CapStatus = 'locked' | 'in-progress' | 'unlocked';
 export type CapPhase = 'read' | 'write' | 'feedback' | 'questions' | 'tutoring' | 'complete';
 
+export interface ConceptPage {
+  name: string;        // must match keyConcepts[i] exactly
+  explanation: string; // 2-3 sentences, age-appropriate Spanish
+  quickCheck: {
+    question: string;
+    options: [string, string]; // exactly 2 options
+    correctIndex: 0 | 1;
+    hint: string;      // shown after wrong answer
+  };
+}
+
 export interface Cap {
   id: number;
   title: string;
@@ -10,6 +21,7 @@ export interface Cap {
   explanation: string;
   keyConcepts: string[];
   xpReward: number;
+  conceptPages: ConceptPage[];
 }
 
 export interface ConceptCheck {
@@ -40,6 +52,7 @@ export interface CapState {
   followUpAnswers: QuestionAnswer[];
   finalValidation?: { passed: boolean; message: string };
   attemptCount: number;
+  starRating?: 1 | 2 | 3;
 }
 
 export interface AppState {

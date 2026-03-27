@@ -73,10 +73,14 @@ export default function CapCard({ cap, capState, isActive, onClick }: CapCardPro
         {/* Badge */}
         {isUnlocked && (
           <div
-            className="absolute -top-3 -right-3 w-10 h-10 rounded-full flex items-center justify-center text-xl shadow-md border-2 border-white"
+            className="absolute -top-3 -right-3 w-10 h-10 rounded-full flex items-center justify-center text-sm shadow-md border-2 border-white"
             style={{ background: colors.accent }}
           >
-            🏆
+            {capState.starRating === 3
+              ? '⭐⭐⭐'
+              : capState.starRating === 2
+              ? '⭐⭐'
+              : '⭐'}
           </div>
         )}
         {isLocked && (
