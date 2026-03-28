@@ -101,6 +101,50 @@ El cambio de un estado a otro ocurre cuando cambia la **temperatura** o la **pre
         },
       },
     ],
+    explicarQuestions: [
+      // Concept 0: La materia está formada por átomos
+      [
+        { question: '¿Qué es un átomo y por qué no podemos verlos a simple vista?', type: 'comprehension' },
+        { question: '¿De qué está hecha toda la materia que te rodea, desde una roca hasta el aire?', type: 'comprehension' },
+        { question: 'Si tienes un vaso de agua, ¿qué tipo de partículas forman ese líquido?', type: 'application' },
+      ],
+      // Concept 1: Los átomos se unen para formar moléculas
+      [
+        { question: '¿Qué es una molécula? Explícalo con tus propias palabras.', type: 'comprehension' },
+        { question: 'El agua se escribe H₂O. ¿Cuántos átomos y de qué tipo forman una molécula de agua?', type: 'application' },
+        { question: 'Si los átomos fueran piezas de LEGO, ¿qué serían las moléculas?', type: 'application' },
+      ],
+      // Concept 2: Existen tres estados de la materia: sólido, líquido y gas
+      [
+        { question: 'Nombra los tres estados de la materia y da un ejemplo de cada uno.', type: 'comprehension' },
+        { question: 'El agua puede estar en tres estados. ¿Cuáles son y cómo se llama cada forma?', type: 'application' },
+        { question: '¿En qué se diferencia un sólido de un gas?', type: 'comprehension' },
+      ],
+      // Concept 3: En el estado sólido las partículas están muy juntas y tienen forma fija
+      [
+        { question: '¿Por qué un trozo de hielo mantiene su forma aunque lo pongas en distintos recipientes?', type: 'comprehension' },
+        { question: '¿Cómo se mueven las partículas dentro de un sólido?', type: 'comprehension' },
+        { question: '¿Por qué una piedra no cambia de forma cuando la aprietas con la mano?', type: 'application' },
+      ],
+      // Concept 4: En el estado líquido las partículas pueden moverse pero el volumen es fijo
+      [
+        { question: 'Si viertes agua de un vaso cuadrado a uno redondo, ¿cambia su forma? ¿Y su cantidad?', type: 'application' },
+        { question: '¿Por qué los líquidos toman la forma del recipiente pero no cambian de volumen?', type: 'comprehension' },
+        { question: 'Tienes 200 ml de jugo en un vaso. Si lo pasas a una botella, ¿cuántos ml tendrás?', type: 'application' },
+      ],
+      // Concept 5: En el estado gaseoso las partículas están muy separadas y en movimiento rápido
+      [
+        { question: '¿Por qué el gas puede llenar cualquier espacio, sin importar su tamaño?', type: 'comprehension' },
+        { question: '¿Qué hace que el gas no tenga forma ni volumen fijo?', type: 'comprehension' },
+        { question: 'Cuando inflas un globo, ¿qué les pasa a las partículas de aire dentro de él?', type: 'application' },
+      ],
+      // Concept 6: Los cambios de estado ocurren por variaciones de temperatura o presión
+      [
+        { question: '¿Qué tiene que ocurrirle al hielo para que se convierta en agua líquida?', type: 'comprehension' },
+        { question: 'Cuando calientas agua en una olla, ¿qué cambio de estado ocurre y qué lo provoca?', type: 'application' },
+        { question: '¿Qué dos factores pueden provocar que la materia cambie de un estado a otro?', type: 'comprehension' },
+      ],
+    ],
   },
   {
     id: 2,
@@ -207,6 +251,50 @@ Las fuerzas pueden **sumarse** (si van en la misma dirección) o **cancelarse** 
           hint: 'Fuerzas iguales y opuestas se cancelan, resultando en equilibrio.',
         },
       },
+    ],
+    explicarQuestions: [
+      // Concept 0: Una fuerza es un empuje o jalón que actúa sobre un objeto
+      [
+        { question: '¿Qué es una fuerza? Describe qué ocurre cuando la aplicas a un objeto.', type: 'comprehension' },
+        { question: 'Da dos ejemplos de la vida cotidiana donde apliques una fuerza.', type: 'application' },
+        { question: '¿Puedes ver una fuerza directamente? ¿Cómo sabes entonces que existe?', type: 'comprehension' },
+      ],
+      // Concept 1: Las fuerzas se miden en Newtons
+      [
+        { question: '¿En qué unidad se miden las fuerzas y cómo se llama esa unidad?', type: 'comprehension' },
+        { question: '¿Por qué la unidad de fuerza se llama "Newton"?', type: 'comprehension' },
+        { question: '¿Qué instrumento se usa para medir fuerzas?', type: 'comprehension' },
+      ],
+      // Concept 2: La Primera Ley de Newton
+      [
+        { question: 'Explica la Primera Ley de Newton con tus propias palabras.', type: 'comprehension' },
+        { question: 'Una pelota rueda sobre hielo (casi sin fricción). ¿Qué le pasará después de mucho tiempo?', type: 'application' },
+        { question: 'Estás en un carro que frena de golpe. Según la Primera Ley, ¿por qué tu cuerpo se mueve hacia adelante?', type: 'application' },
+      ],
+      // Concept 3: La inercia
+      [
+        { question: '¿Qué es la inercia? ¿Qué tipo de objetos tienen más inercia?', type: 'comprehension' },
+        { question: '¿Por qué es más difícil mover un camión que una bicicleta si aplicas la misma fuerza?', type: 'application' },
+        { question: 'Cuando un autobús arranca de repente, ¿por qué tu cuerpo se queda "atrás"?', type: 'application' },
+      ],
+      // Concept 4: La gravedad
+      [
+        { question: '¿Qué es la gravedad y hacia dónde jala los objetos?', type: 'comprehension' },
+        { question: '¿Por qué la Luna orbita la Tierra en vez de salir disparada al espacio?', type: 'application' },
+        { question: 'Si sueltas una pluma y una pelota de metal al mismo tiempo en el vacío, ¿cuál cae primero?', type: 'application' },
+      ],
+      // Concept 5: La fricción
+      [
+        { question: '¿Qué es la fricción y cómo afecta al movimiento de los objetos?', type: 'comprehension' },
+        { question: '¿Por qué una pelota que rueda sobre el pasto se detiene sola?', type: 'application' },
+        { question: 'Da un ejemplo donde la fricción sea útil y uno donde sea un inconveniente.', type: 'application' },
+      ],
+      // Concept 6: Las fuerzas pueden sumarse o cancelarse entre sí
+      [
+        { question: '¿Qué pasa cuando dos fuerzas iguales actúan en sentidos opuestos sobre un objeto?', type: 'comprehension' },
+        { question: 'Dos personas empujan una caja: una con 10 N hacia la derecha y otra con 6 N hacia la izquierda. ¿Cuál es la fuerza resultante y hacia dónde se mueve?', type: 'application' },
+        { question: '¿En qué situación decimos que un objeto está en "equilibrio" de fuerzas?', type: 'comprehension' },
+      ],
     ],
   },
   {
@@ -316,6 +404,50 @@ Ejemplo: cuando una pelota rueda por un tobogán, la energía potencial (posici�
           hint: 'Al caer, la altura disminuye (menos potencial) y la velocidad aumenta (más cinética).',
         },
       },
+    ],
+    explicarQuestions: [
+      // Concept 0: La energía es la capacidad de hacer trabajo o producir un cambio
+      [
+        { question: '¿Qué es la energía y para qué sirve?', type: 'comprehension' },
+        { question: 'Da tres ejemplos de cosas que usan energía para funcionar.', type: 'application' },
+        { question: '¿Puede haber movimiento o cambio en el mundo sin energía?', type: 'comprehension' },
+      ],
+      // Concept 1: La energía cinética es la energía del movimiento
+      [
+        { question: '¿Qué es la energía cinética y cuándo tiene un objeto energía cinética?', type: 'comprehension' },
+        { question: 'Una bicicleta se mueve a 10 km/h. ¿Tiene energía cinética? ¿Qué pasa si acelera a 30 km/h?', type: 'application' },
+        { question: '¿Qué le pasa a la energía cinética de una pelota cuando alguien la atrapa?', type: 'application' },
+      ],
+      // Concept 2: A mayor velocidad o masa, mayor energía cinética
+      [
+        { question: '¿Qué dos factores determinan cuánta energía cinética tiene un objeto?', type: 'comprehension' },
+        { question: 'Un carro viaja a 40 km/h y luego acelera a 80 km/h. ¿Cómo cambia su energía cinética?', type: 'application' },
+        { question: 'Un camión y una moto van a la misma velocidad. ¿Cuál tiene más energía cinética y por qué?', type: 'application' },
+      ],
+      // Concept 3: La energía potencial es energía almacenada por posición o estado
+      [
+        { question: '¿Qué es la energía potencial? ¿Por qué se llama "potencial"?', type: 'comprehension' },
+        { question: 'Una liga estirada tiene energía potencial. ¿Qué pasa con esa energía cuando la sueltas?', type: 'application' },
+        { question: 'Da dos ejemplos de objetos que tengan energía potencial sin estar en movimiento.', type: 'application' },
+      ],
+      // Concept 4: La energía potencial gravitacional depende de la altura
+      [
+        { question: '¿Cómo afecta la altura a la energía potencial gravitacional de un objeto?', type: 'comprehension' },
+        { question: 'Subes un libro al segundo piso. ¿Tiene más o menos energía potencial que en el suelo?', type: 'application' },
+        { question: '¿Por qué una cascada tiene más energía cuando cae desde muy alto que desde poca altura?', type: 'application' },
+      ],
+      // Concept 5: La Ley de Conservación de la Energía
+      [
+        { question: '¿Qué dice la Ley de Conservación de la Energía?', type: 'comprehension' },
+        { question: 'Cuando enciendes una lámpara eléctrica, ¿en qué formas de energía se transforma la energía eléctrica?', type: 'application' },
+        { question: 'Comes un sándwich para tener energía. ¿La energía se crea o se transforma?', type: 'application' },
+      ],
+      // Concept 6: La energía puede transformarse de potencial a cinética y viceversa
+      [
+        { question: '¿Cómo se relacionan la energía potencial y la cinética cuando un objeto cae?', type: 'comprehension' },
+        { question: 'Una pelota cae desde 3 metros. Describe la transformación de energía desde lo alto hasta el suelo.', type: 'application' },
+        { question: 'Un niño en un columpio está en lo más alto. ¿Cuándo tiene más energía cinética y cuándo más potencial?', type: 'application' },
+      ],
     ],
   },
 ];

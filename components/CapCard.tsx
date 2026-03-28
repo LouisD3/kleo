@@ -23,19 +23,18 @@ export default function CapCard({ cap, capState, isActive, onClick }: CapCardPro
 
   const getProgressLabel = () => {
     if (isUnlocked) return '¡Completado!';
-    if (capState.phase === 'read') return 'Leer explicación';
-    if (capState.phase === 'write') return 'Escribir explicación';
-    if (capState.phase === 'feedback') return 'Responder preguntas';
-    if (capState.phase === 'tutoring') return 'Repasando con tutor';
+    if (capState.phase === 'conceptos') return 'Aprendiendo conceptos';
+    if (capState.phase === 'explicar') return 'Explicando conceptos';
+    if (capState.phase === 'revisar') return 'Revisando con tutor';
+    if (capState.phase === 'complete') return '¡Dominado!';
     return 'En progreso';
   };
 
   const getProgressPercent = () => {
     if (isUnlocked) return 100;
-    if (capState.phase === 'read') return 10;
-    if (capState.phase === 'write') return 40;
-    if (capState.phase === 'feedback') return 70;
-    if (capState.phase === 'tutoring') return 70;
+    if (capState.phase === 'conceptos') return 10;
+    if (capState.phase === 'explicar') return 45;
+    if (capState.phase === 'revisar') return 75;
     if (capState.phase === 'complete') return 100;
     return 0;
   };

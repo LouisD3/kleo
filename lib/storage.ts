@@ -1,16 +1,15 @@
-import { AppState, CapState } from './types';
+import { AppState, CapPhase, CapState } from './types';
 import { CAPS } from './caps';
 
 const STORAGE_KEY = 'kleo-physics-state';
 
+const VALID_PHASES: CapPhase[] = ['conceptos', 'explicar', 'revisar', 'complete'];
+
 export function getInitialCapState(capId: number): CapState {
   return {
     status: capId === 1 ? 'in-progress' : 'locked',
-    phase: 'read',
-    userExplanation: '',
-    evaluation: undefined,
-    followUpAnswers: [],
-    finalValidation: undefined,
+    phase: 'conceptos',
+    explicarAnswers: [],
     attemptCount: 0,
   };
 }
@@ -30,7 +29,15 @@ export function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return getInitialAppState();
-    return JSON.parse(raw) as AppState;
+    const parsed = JSON.parse(raw) as AppState;
+    // Migration: reset any cap state with an invalid (old) phase
+    for (const capId of Object.keys(parsed.caps)) {
+      const capState = parsed.caps[Number(capId)];
+      if (!capState || !VALID_PHASES.includes(capState.phase)) {
+        parsed.caps[Number(capId)] = getInitialCapState(Number(capId));
+      }
+    }
+    return parsed;
   } catch {
     return getInitialAppState();
   }

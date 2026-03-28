@@ -1,15 +1,35 @@
 export type CapStatus = 'locked' | 'in-progress' | 'unlocked';
-export type CapPhase = 'read' | 'write' | 'feedback' | 'questions' | 'tutoring' | 'complete';
+export type CapPhase = 'conceptos' | 'explicar' | 'revisar' | 'complete';
 
 export interface ConceptPage {
-  name: string;        // must match keyConcepts[i] exactly
-  explanation: string; // 2-3 sentences, age-appropriate Spanish
+  name: string;
+  explanation: string;
   quickCheck: {
     question: string;
-    options: [string, string]; // exactly 2 options
+    options: [string, string];
     correctIndex: 0 | 1;
-    hint: string;      // shown after wrong answer
+    hint: string;
   };
+}
+
+export interface ExplicarQuestion {
+  question: string;
+  type: 'comprehension' | 'application';
+}
+
+export interface ExplicarAnswer {
+  conceptIndex: number;
+  questionIndex: number;
+  question: string;
+  answer: string;
+}
+
+export interface RevisarItem {
+  conceptIndex: number;
+  concept: string;
+  aiExplanation: string;
+  targetedQuestion: string;
+  relevantQuestionIndex: number; // 0 | 1 | 2 — index dans explicarQuestions[conceptIndex]
 }
 
 export interface Cap {
@@ -22,36 +42,14 @@ export interface Cap {
   keyConcepts: string[];
   xpReward: number;
   conceptPages: ConceptPage[];
-}
-
-export interface ConceptCheck {
-  concept: string;
-  covered: boolean;
-  studentEvidence?: string;
-}
-
-export interface EvaluationResult {
-  gaps: string[];
-  correct: string[];
-  passed: boolean;
-  followUpQuestions: string[];
-  conceptChecks?: ConceptCheck[];
-  tutorExplanation?: string;
-}
-
-export interface QuestionAnswer {
-  question: string;
-  answer: string;
+  explicarQuestions: ExplicarQuestion[][];
 }
 
 export interface CapState {
   status: CapStatus;
   phase: CapPhase;
-  userExplanation: string;
-  evaluation?: EvaluationResult;
-  followUpAnswers: QuestionAnswer[];
-  finalValidation?: { passed: boolean; message: string };
-  attemptCount: number;
+  explicarAnswers: ExplicarAnswer[];
+  attemptCount: number; // number of failed Revisar loops
   starRating?: 1 | 2 | 3;
 }
 
