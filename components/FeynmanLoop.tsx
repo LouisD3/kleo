@@ -1,16 +1,17 @@
 'use client';
 
-import { Cap, CapState, ExplicarAnswer } from '@/lib/types';
+import { LearningContent, ChapterState, FinalTestState, ExplicarAnswer } from '@/lib/types';
 import ConceptLoop from './ConceptLoop';
 import ExplicarLoop from './ExplicarLoop';
 import RevisarLoop from './RevisarLoop';
 import PhaseStepBar from './PhaseStepBar';
 
 interface FeynmanLoopProps {
-  cap: Cap;
-  capState: CapState;
+  content: LearningContent;
+  state: ChapterState | FinalTestState;
+  mode: 'chapter' | 'final-test';
   onComplete: (xp: number) => void;
-  onStateChange: (newState: Partial<CapState>) => void;
+  onStateChange: (updates: Partial<ChapterState> | Partial<FinalTestState>) => void;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -25,33 +26,45 @@ const BG_MAP: Record<string, string> = {
   green: '#F0FFF0',
 };
 
-function getPhaseStep(phase: string): 0 | 1 | 2 | 3 {
-  const map: Record<string, 0 | 1 | 2 | 3> = {
-    conceptos: 0,
-    explicar: 1,
-    revisar: 2,
-    complete: 3,
-  };
-  return map[phase] ?? 0;
-}
-
 export default function FeynmanLoop({
-  cap,
-  capState,
+  content,
+  state,
+  mode,
   onComplete,
   onStateChange,
 }: FeynmanLoopProps) {
-  const accentColor = COLOR_MAP[cap.color] ?? '#1CB0F6';
-  const bgColor = BG_MAP[cap.color] ?? '#EFF9FE';
-  const currentStep = getPhaseStep(capState.phase);
+  const accentColor = COLOR_MAP[content.color] ?? '#1CB0F6';
+  const bgColor = BG_MAP[content.color] ?? '#EFF9FE';
 
-  // ── Conceptos ───────────────────────────────────────────────────────────────
-  if (capState.phase === 'conceptos') {
+  // For chapter: 4 steps (0=conceptos, 1=explicar, 2=revisar, 3=complete)
+  // For final-test: 3 steps (0=explicar, 1=revisar, 2=complete)
+  function getPhaseStep(): 0 | 1 | 2 | 3 {
+    if (mode === 'final-test') {
+      const map: Record<string, 0 | 1 | 2> = {
+        explicar: 0,
+        revisar: 1,
+        complete: 2,
+      };
+      return (map[state.phase] ?? 0) as 0 | 1 | 2 | 3;
+    }
+    const map: Record<string, 0 | 1 | 2 | 3> = {
+      conceptos: 0,
+      explicar: 1,
+      revisar: 2,
+      complete: 3,
+    };
+    return map[state.phase] ?? 0;
+  }
+
+  const currentStep = getPhaseStep();
+
+  // ── Conceptos (chapter only) ─────────────────────────────────────────────────
+  if (mode === 'chapter' && state.phase === 'conceptos') {
     return (
       <div className="space-y-4">
-        <PhaseStepBar currentStep={0} accentColor={accentColor} />
+        <PhaseStepBar currentStep={0} accentColor={accentColor} mode="chapter" />
         <ConceptLoop
-          cap={cap}
+          content={content}
           accentColor={accentColor}
           bgColor={bgColor}
           onComplete={() => onStateChange({ phase: 'explicar' })}
@@ -61,21 +74,26 @@ export default function FeynmanLoop({
   }
 
   // ── Explicar ─────────────────────────────────────────────────────────────────
-  if (capState.phase === 'explicar') {
+  if (state.phase === 'explicar') {
+    const stepIndex = mode === 'final-test' ? 0 : 1;
     return (
       <div className="space-y-4">
-        <PhaseStepBar currentStep={1} accentColor={accentColor} />
+        <PhaseStepBar currentStep={stepIndex as 0 | 1 | 2 | 3} accentColor={accentColor} mode={mode} />
         <div className="text-center mb-2">
-          <h2 className="font-black text-xl text-gray-800">Explícalo tú</h2>
+          <h2 className="font-black text-xl text-gray-800">
+            {mode === 'final-test' ? 'Prueba Final' : 'Explícalo tú'}
+          </h2>
           <p className="text-gray-500 text-sm mt-1">
-            Responde cada pregunta con tus propias palabras
+            {mode === 'final-test'
+              ? 'Demuestra todo lo que aprendiste en este cap'
+              : 'Responde cada pregunta con tus propias palabras'}
           </p>
         </div>
         <ExplicarLoop
-          cap={cap}
+          content={content}
           accentColor={accentColor}
           bgColor={bgColor}
-          initialAnswers={capState.explicarAnswers ?? []}
+          initialAnswers={(state as ChapterState).explicarAnswers ?? []}
           onComplete={(answers: ExplicarAnswer[]) =>
             onStateChange({ phase: 'revisar', explicarAnswers: answers })
           }
@@ -85,10 +103,11 @@ export default function FeynmanLoop({
   }
 
   // ── Revisar ──────────────────────────────────────────────────────────────────
-  if (capState.phase === 'revisar') {
+  if (state.phase === 'revisar') {
+    const stepIndex = mode === 'final-test' ? 1 : 2;
     return (
       <div className="space-y-4">
-        <PhaseStepBar currentStep={2} accentColor={accentColor} />
+        <PhaseStepBar currentStep={stepIndex as 0 | 1 | 2 | 3} accentColor={accentColor} mode={mode} />
         <div className="text-center mb-2">
           <h2 className="font-black text-xl text-gray-800">Revisemos juntos</h2>
           <p className="text-gray-500 text-sm mt-1">
@@ -96,22 +115,29 @@ export default function FeynmanLoop({
           </p>
         </div>
         <RevisarLoop
-          key={`revisar-${capState.attemptCount ?? 0}`}
-          cap={cap}
+          key={`revisar-${state.attemptCount ?? 0}`}
+          capTitle={content.title}
+          capEmoji={content.emoji}
+          keyConcepts={content.keyConcepts}
           accentColor={accentColor}
           bgColor={bgColor}
-          explicarAnswers={capState.explicarAnswers ?? []}
-          loopCount={capState.attemptCount ?? 0}
+          explicarAnswers={(state as ChapterState).explicarAnswers ?? []}
+          loopCount={state.attemptCount ?? 0}
           onComplete={(stars: 1 | 2 | 3) => {
             onStateChange({ phase: 'complete', starRating: stars });
-            setTimeout(() => onComplete(cap.xpReward), 3500);
+            setTimeout(() => onComplete(content.xpReward), 3500);
           }}
           onLoopCountIncrement={() => {
-            const newCount = (capState.attemptCount ?? 0) + 1;
+            const newCount = (state.attemptCount ?? 0) + 1;
             onStateChange({ attemptCount: newCount });
           }}
           onResetToConceptos={() => {
-            onStateChange({ phase: 'conceptos', explicarAnswers: [], attemptCount: 0 });
+            if (mode === 'chapter') {
+              onStateChange({ phase: 'conceptos', explicarAnswers: [], attemptCount: 0 });
+            } else {
+              // Final test: reset to explicar (no conceptos)
+              onStateChange({ phase: 'explicar', explicarAnswers: [], attemptCount: 0 });
+            }
           }}
         />
       </div>
@@ -119,25 +145,30 @@ export default function FeynmanLoop({
   }
 
   // ── Complete ─────────────────────────────────────────────────────────────────
-  if (capState.phase === 'complete') {
-    const stars = capState.starRating ?? 1;
+  if (state.phase === 'complete') {
+    const stepIndex = mode === 'final-test' ? 2 : 3;
+    const stars = state.starRating ?? 1;
     const starDisplay = stars === 3 ? '⭐⭐⭐' : stars === 2 ? '⭐⭐' : '⭐';
 
     return (
       <div className="text-center space-y-6 py-8">
-        <PhaseStepBar currentStep={3} accentColor={accentColor} />
-        <div className="text-8xl animate-bounce">🏆</div>
+        <PhaseStepBar currentStep={stepIndex as 0 | 1 | 2 | 3} accentColor={accentColor} mode={mode} />
+        <div className="text-8xl animate-bounce">
+          {mode === 'final-test' ? '🏆' : '✅'}
+        </div>
         <div>
-          <h2 className="font-black text-3xl text-gray-800">¡Nivel completado!</h2>
+          <h2 className="font-black text-3xl text-gray-800">
+            {mode === 'final-test' ? '¡Cap completado!' : '¡Capítulo superado!'}
+          </h2>
           <p className="text-gray-500 mt-2 text-base">
-            Dominaste <strong>{cap.title}</strong>
+            Dominaste <strong>{content.title}</strong>
           </p>
         </div>
         <div
           className="inline-block px-6 py-3 rounded-full font-black text-white text-xl shadow-lg"
           style={{ background: accentColor }}
         >
-          +{cap.xpReward} XP {starDisplay}
+          +{content.xpReward} XP {starDisplay}
         </div>
         <div className="flex justify-center gap-3 text-4xl animate-pulse">
           <span>⭐</span>

@@ -15,33 +15,37 @@ const COLOR_MAP: Record<string, { accent: string; light: string; dark: string }>
   green: { accent: '#58CC02', light: '#F0FFF0', dark: '#3D9000' },
 };
 
+function getProgressLabel(capState: CapState, cap: Cap): string {
+  if (capState.status === 'unlocked') return '¡Completado!';
+  const completedChapters = capState.chapters.filter((c) => c.phase === 'complete').length;
+  const totalChapters = cap.chapters.length;
+  if (capState.finalTest.phase === 'complete') return '¡Completado!';
+  if (completedChapters >= totalChapters) return 'Prueba Final';
+  const activeChapter = cap.chapters[completedChapters];
+  return `Cap. ${completedChapters + 1}: ${activeChapter.title}`;
+}
+
+function getProgressPercent(capState: CapState, cap: Cap): number {
+  if (capState.status === 'unlocked') return 100;
+  const total = cap.chapters.length + 1; // chapters + finalTest
+  let completed = capState.chapters.filter((c) => c.phase === 'complete').length;
+  if (capState.finalTest.phase === 'complete') completed++;
+  return Math.round((completed / total) * 100);
+}
+
 export default function CapCard({ cap, capState, isActive, onClick }: CapCardProps) {
   const colors = COLOR_MAP[cap.color] ?? COLOR_MAP.blue;
   const isLocked = capState.status === 'locked';
   const isUnlocked = capState.status === 'unlocked';
   const inProgress = capState.status === 'in-progress';
+  const progressLabel = getProgressLabel(capState, cap);
+  const progressPercent = getProgressPercent(capState, cap);
 
-  const getProgressLabel = () => {
-    if (isUnlocked) return '¡Completado!';
-    if (capState.phase === 'conceptos') return 'Aprendiendo conceptos';
-    if (capState.phase === 'explicar') return 'Explicando conceptos';
-    if (capState.phase === 'revisar') return 'Revisando con tutor';
-    if (capState.phase === 'complete') return '¡Dominado!';
-    return 'En progreso';
-  };
-
-  const getProgressPercent = () => {
-    if (isUnlocked) return 100;
-    if (capState.phase === 'conceptos') return 10;
-    if (capState.phase === 'explicar') return 45;
-    if (capState.phase === 'revisar') return 75;
-    if (capState.phase === 'complete') return 100;
-    return 0;
-  };
+  // Star rating from final test
+  const starRating = capState.finalTest.starRating;
 
   return (
     <div className="flex flex-col items-center relative">
-      {/* Connector line above (except first cap) */}
       {cap.id > 1 && (
         <div
           className="w-1 h-8 rounded-full mb-2 transition-all duration-500"
@@ -75,11 +79,7 @@ export default function CapCard({ cap, capState, isActive, onClick }: CapCardPro
             className="absolute -top-3 -right-3 w-10 h-10 rounded-full flex items-center justify-center text-sm shadow-md border-2 border-white"
             style={{ background: colors.accent }}
           >
-            {capState.starRating === 3
-              ? '⭐⭐⭐'
-              : capState.starRating === 2
-              ? '⭐⭐'
-              : '⭐'}
+            {starRating === 3 ? '⭐⭐⭐' : starRating === 2 ? '⭐⭐' : '⭐'}
           </div>
         )}
         {isLocked && (
@@ -139,18 +139,38 @@ export default function CapCard({ cap, capState, isActive, onClick }: CapCardPro
         {!isLocked && (
           <div className="mt-4">
             <div className="flex justify-between text-xs font-bold mb-1" style={{ color: colors.dark }}>
-              <span>{getProgressLabel()}</span>
-              <span>{getProgressPercent()}%</span>
+              <span>{progressLabel}</span>
+              <span>{progressPercent}%</span>
             </div>
             <div className="h-2.5 bg-white rounded-full overflow-hidden shadow-inner">
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{
-                  width: `${getProgressPercent()}%`,
+                  width: `${progressPercent}%`,
                   background: `linear-gradient(90deg, ${colors.accent}, ${colors.dark})`,
                 }}
               />
             </div>
+          </div>
+        )}
+
+        {/* Chapter mini progress dots */}
+        {!isLocked && (
+          <div className="mt-3 flex gap-1.5">
+            {cap.chapters.map((_, i) => {
+              const done = capState.chapters[i]?.phase === 'complete';
+              return (
+                <div
+                  key={i}
+                  className="h-1.5 flex-1 rounded-full transition-all duration-500"
+                  style={{ background: done ? colors.accent : '#E5E7EB' }}
+                />
+              );
+            })}
+            <div
+              className="h-1.5 flex-1 rounded-full transition-all duration-500"
+              style={{ background: capState.finalTest.phase === 'complete' ? colors.accent : '#E5E7EB' }}
+            />
           </div>
         )}
       </button>

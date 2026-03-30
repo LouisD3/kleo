@@ -1,5 +1,6 @@
 export type CapStatus = 'locked' | 'in-progress' | 'unlocked';
 export type CapPhase = 'conceptos' | 'explicar' | 'revisar' | 'complete';
+export type FinalTestPhase = 'explicar' | 'revisar' | 'complete';
 
 export interface ConceptPage {
   name: string;
@@ -29,7 +30,33 @@ export interface RevisarItem {
   concept: string;
   aiExplanation: string;
   targetedQuestion: string;
-  relevantQuestionIndex: number; // 0 | 1 | 2 — index dans explicarQuestions[conceptIndex]
+  relevantQuestionIndex: number;
+}
+
+// Unified content interface passed to FeynmanLoop and sub-components
+export interface LearningContent {
+  title: string;
+  emoji: string;
+  color: string;
+  keyConcepts: string[];
+  conceptPages: ConceptPage[]; // empty array for final test
+  explicarQuestions: ExplicarQuestion[][];
+  xpReward: number;
+}
+
+export interface Chapter {
+  id: number;
+  title: string;
+  xpReward: number;
+  keyConcepts: string[];
+  conceptPages: ConceptPage[];
+  explicarQuestions: ExplicarQuestion[][];
+}
+
+export interface FinalTest {
+  xpReward: number;
+  keyConcepts: string[];
+  explicarQuestions: ExplicarQuestion[][];
 }
 
 export interface Cap {
@@ -38,23 +65,32 @@ export interface Cap {
   subtitle: string;
   emoji: string;
   color: string;
-  explanation: string;
-  keyConcepts: string[];
-  xpReward: number;
-  conceptPages: ConceptPage[];
-  explicarQuestions: ExplicarQuestion[][];
+  xpReward: number; // sum of all chapters + finalTest
+  chapters: Chapter[];
+  finalTest: FinalTest;
+}
+
+export interface ChapterState {
+  phase: CapPhase;
+  explicarAnswers: ExplicarAnswer[];
+  attemptCount: number;
+  starRating?: 1 | 2 | 3;
+}
+
+export interface FinalTestState {
+  phase: FinalTestPhase;
+  explicarAnswers: ExplicarAnswer[];
+  attemptCount: number;
+  starRating?: 1 | 2 | 3;
 }
 
 export interface CapState {
   status: CapStatus;
-  phase: CapPhase;
-  explicarAnswers: ExplicarAnswer[];
-  attemptCount: number; // number of failed Revisar loops
-  starRating?: 1 | 2 | 3;
+  chapters: ChapterState[];
+  finalTest: FinalTestState;
 }
 
 export interface AppState {
   caps: Record<number, CapState>;
   totalXP: number;
-  activeCapId: number | null;
 }

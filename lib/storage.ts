@@ -1,16 +1,30 @@
-import { AppState, CapPhase, CapState } from './types';
+import { AppState, CapState, ChapterState, FinalTestState } from './types';
 import { CAPS } from './caps';
 
-const STORAGE_KEY = 'kleo-physics-state';
+const STORAGE_KEY = 'kleo-physics-state-v2';
 
-const VALID_PHASES: CapPhase[] = ['conceptos', 'explicar', 'revisar', 'complete'];
-
-export function getInitialCapState(capId: number): CapState {
+export function getInitialChapterState(): ChapterState {
   return {
-    status: capId === 1 ? 'in-progress' : 'locked',
     phase: 'conceptos',
     explicarAnswers: [],
     attemptCount: 0,
+  };
+}
+
+export function getInitialFinalTestState(): FinalTestState {
+  return {
+    phase: 'explicar',
+    explicarAnswers: [],
+    attemptCount: 0,
+  };
+}
+
+export function getInitialCapState(capId: number): CapState {
+  const cap = CAPS.find((c) => c.id === capId)!;
+  return {
+    status: capId === 1 ? 'in-progress' : 'locked',
+    chapters: cap.chapters.map(() => getInitialChapterState()),
+    finalTest: getInitialFinalTestState(),
   };
 }
 
@@ -20,8 +34,18 @@ export function getInitialAppState(): AppState {
       CAPS.map((cap) => [cap.id, getInitialCapState(cap.id)])
     ),
     totalXP: 0,
-    activeCapId: 1,
   };
+}
+
+function isValidCapState(state: unknown, capId: number): boolean {
+  if (!state || typeof state !== 'object') return false;
+  const s = state as Record<string, unknown>;
+  if (!s.status || !s.chapters || !s.finalTest) return false;
+  if (!Array.isArray(s.chapters)) return false;
+  const cap = CAPS.find((c) => c.id === capId);
+  if (!cap) return false;
+  if ((s.chapters as unknown[]).length !== cap.chapters.length) return false;
+  return true;
 }
 
 export function loadState(): AppState {
@@ -30,13 +54,13 @@ export function loadState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return getInitialAppState();
     const parsed = JSON.parse(raw) as AppState;
-    // Migration: reset any cap state with an invalid (old) phase
-    for (const capId of Object.keys(parsed.caps)) {
-      const capState = parsed.caps[Number(capId)];
-      if (!capState || !VALID_PHASES.includes(capState.phase)) {
-        parsed.caps[Number(capId)] = getInitialCapState(Number(capId));
+    // Validate and migrate invalid cap states
+    for (const cap of CAPS) {
+      if (!isValidCapState(parsed.caps?.[cap.id], cap.id)) {
+        parsed.caps[cap.id] = getInitialCapState(cap.id);
       }
     }
+    if (typeof parsed.totalXP !== 'number') parsed.totalXP = 0;
     return parsed;
   } catch {
     return getInitialAppState();

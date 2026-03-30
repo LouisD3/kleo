@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { Cap, ExplicarAnswer } from '@/lib/types';
+import { LearningContent, ExplicarAnswer } from '@/lib/types';
 
 interface Props {
-  cap: Cap;
+  content: LearningContent;
   accentColor: string;
   bgColor: string;
   initialAnswers: ExplicarAnswer[];
@@ -12,7 +12,7 @@ interface Props {
 
 const QUESTIONS_PER_CONCEPT = 3;
 
-export default function ExplicarLoop({ cap, accentColor, bgColor, initialAnswers, onComplete }: Props) {
+export default function ExplicarLoop({ content, accentColor, bgColor, initialAnswers, onComplete }: Props) {
   const startConcept = Math.floor(initialAnswers.length / QUESTIONS_PER_CONCEPT);
   const startQuestion = initialAnswers.length % QUESTIONS_PER_CONCEPT;
 
@@ -21,8 +21,8 @@ export default function ExplicarLoop({ cap, accentColor, bgColor, initialAnswers
   const [currentAnswer, setCurrentAnswer] = useState('');
   const [answers, setAnswers] = useState<ExplicarAnswer[]>(initialAnswers);
 
-  const totalConcepts = cap.keyConcepts.length;
-  const currentQuestion = cap.explicarQuestions[conceptIndex]?.[questionIndex];
+  const totalConcepts = content.keyConcepts.length;
+  const currentQuestion = content.explicarQuestions[conceptIndex]?.[questionIndex];
   const isLast =
     conceptIndex === totalConcepts - 1 && questionIndex === QUESTIONS_PER_CONCEPT - 1;
   const completedConcepts = Math.floor(answers.length / QUESTIONS_PER_CONCEPT);
@@ -74,9 +74,9 @@ export default function ExplicarLoop({ cap, accentColor, bgColor, initialAnswers
 
       <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: bgColor }}>
         <div className="flex items-start gap-2">
-          <span className="text-xl flex-shrink-0">{cap.emoji}</span>
+          <span className="text-xl flex-shrink-0">{content.emoji}</span>
           <p className="text-xs font-bold text-gray-500 uppercase tracking-wide leading-snug">
-            {cap.keyConcepts[conceptIndex]}
+            {content.keyConcepts[conceptIndex]}
           </p>
         </div>
         <p className="text-gray-800 font-semibold text-base leading-snug">

@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
-import { Cap } from '@/lib/types';
+import { LearningContent } from '@/lib/types';
 
 interface Props {
-  cap: Cap;
+  content: LearningContent;
   accentColor: string;
   bgColor: string;
   onComplete: () => void;
@@ -11,17 +11,17 @@ interface Props {
 
 type SubStep = 'read' | 'check';
 
-export default function ConceptLoop({ cap, accentColor, bgColor, onComplete }: Props) {
+export default function ConceptLoop({ content, accentColor, bgColor, onComplete }: Props) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [subStep, setSubStep] = useState<SubStep>('read');
   const [checkResult, setCheckResult] = useState<null | 'correct' | 'wrong'>(null);
   const [showReward, setShowReward] = useState(false);
   const [completedDots, setCompletedDots] = useState<boolean[]>(
-    new Array(cap.conceptPages.length).fill(false)
+    new Array(content.conceptPages.length).fill(false)
   );
 
-  const total = cap.conceptPages.length;
-  const page = cap.conceptPages[currentIndex];
+  const total = content.conceptPages.length;
+  const page = content.conceptPages[currentIndex];
 
   function handleCheckAnswer(index: 0 | 1) {
     if (index === page.quickCheck.correctIndex) {
@@ -51,7 +51,7 @@ export default function ConceptLoop({ cap, accentColor, bgColor, onComplete }: P
     <div className="relative">
       {/* Progress dots */}
       <div className="flex gap-2 justify-center mb-6">
-        {cap.conceptPages.map((_, i) => (
+        {content.conceptPages.map((_, i) => (
           <div
             key={i}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
@@ -84,7 +84,7 @@ export default function ConceptLoop({ cap, accentColor, bgColor, onComplete }: P
       {/* Sub-step: Read */}
       {subStep === 'read' && (
         <div className="rounded-2xl p-6 space-y-4" style={{ backgroundColor: bgColor }}>
-          <div className="text-5xl text-center">{cap.emoji}</div>
+          <div className="text-5xl text-center">{content.emoji}</div>
           <h2 className="text-xl font-bold text-center text-gray-800">{page.name}</h2>
           <p className="text-gray-700 leading-relaxed text-center">{page.explanation}</p>
           <button

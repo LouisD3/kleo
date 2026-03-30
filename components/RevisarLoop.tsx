@@ -1,10 +1,12 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Cap, ExplicarAnswer, RevisarItem } from '@/lib/types';
+import { ExplicarAnswer, RevisarItem } from '@/lib/types';
 import EvaluatingScreen from './EvaluatingScreen';
 
 interface Props {
-  cap: Cap;
+  capTitle: string;
+  capEmoji: string;
+  keyConcepts: string[];
   accentColor: string;
   bgColor: string;
   explicarAnswers: ExplicarAnswer[];
@@ -21,7 +23,9 @@ interface CheckResult {
 }
 
 export default function RevisarLoop({
-  cap,
+  capTitle,
+  capEmoji,
+  keyConcepts,
   accentColor,
   bgColor,
   explicarAnswers,
@@ -40,7 +44,6 @@ export default function RevisarLoop({
   const [checkResult, setCheckResult] = useState<CheckResult | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
 
-  // Use ref to avoid stale closure issues with failedCount
   const failedCountRef = useRef(0);
 
   useEffect(() => {
@@ -49,7 +52,6 @@ export default function RevisarLoop({
 
   async function initRevisar() {
     try {
-      // Group answers by concept
       const byConceptMap: Record<
         number,
         { conceptIndex: number; concept: string; questionsAndAnswers: { question: string; answer: string }[] }
@@ -59,7 +61,7 @@ export default function RevisarLoop({
         if (!byConceptMap[ans.conceptIndex]) {
           byConceptMap[ans.conceptIndex] = {
             conceptIndex: ans.conceptIndex,
-            concept: cap.keyConcepts[ans.conceptIndex],
+            concept: keyConcepts[ans.conceptIndex],
             questionsAndAnswers: [],
           };
         }
@@ -73,8 +75,8 @@ export default function RevisarLoop({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          capTitle: cap.title,
-          keyConcepts: cap.keyConcepts,
+          capTitle,
+          keyConcepts,
           explicarAnswers: Object.values(byConceptMap),
         }),
       });
@@ -106,7 +108,7 @@ export default function RevisarLoop({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          capTitle: cap.title,
+          capTitle,
           concept: item.concept,
           targetedQuestion: currentQuestion,
           studentAnswer: currentAnswer.trim(),
@@ -124,7 +126,6 @@ export default function RevisarLoop({
           advanceToNext(fc);
         }, 1500);
       }
-      // Wrong case is handled via the "Continuar" / "Intentar de nuevo" button
     } catch {
       setCheckResult({
         correct: false,
@@ -140,13 +141,11 @@ export default function RevisarLoop({
     const result = checkResult!;
 
     if (!isRetrying && result.newQuestion && result.newQuestion.trim()) {
-      // Give one more chance with a simpler question
       setCurrentQuestion(result.newQuestion);
       setIsRetrying(true);
       setCurrentAnswer('');
       setCheckResult(null);
     } else {
-      // Item failed — record it and advance
       failedCountRef.current += 1;
       advanceToNext(failedCountRef.current);
     }
@@ -156,18 +155,14 @@ export default function RevisarLoop({
     const nextIndex = currentIndex + 1;
 
     if (nextIndex >= items.length) {
-      // End of all items
       if (currentFailedCount === 0) {
-        // All correct — stars depend on how many loops we've been through
         const stars: 1 | 2 | 3 = loopCount === 0 ? 2 : 1;
         onComplete(stars);
       } else {
-        // Had failures — increment loop count in parent
         onLoopCountIncrement();
         if (loopCount + 1 >= 3) {
           onResetToConceptos();
         }
-        // If loopCount + 1 < 3, parent will remount RevisarLoop via key change
       }
     } else {
       setCurrentIndex(nextIndex);
@@ -178,11 +173,10 @@ export default function RevisarLoop({
     }
   }
 
-  // Loading state — full overlay
   if (isLoading) {
     return (
       <div className="relative min-h-[400px]">
-        <EvaluatingScreen emoji={cap.emoji} />
+        <EvaluatingScreen emoji={capEmoji} />
       </div>
     );
   }
@@ -204,7 +198,6 @@ export default function RevisarLoop({
 
   return (
     <div className="space-y-5">
-      {/* Progress header */}
       <div className="flex items-center justify-between text-sm text-gray-500 font-medium">
         <span>
           Revisando concepto {currentIndex + 1} de {items.length}
@@ -219,7 +212,6 @@ export default function RevisarLoop({
         )}
       </div>
 
-      {/* Student's previous answer */}
       {relevantExplicarAnswer && (
         <div className="rounded-2xl border-2 border-gray-200 bg-gray-50 p-4 space-y-1.5">
           <div className="flex items-center gap-2">
@@ -237,7 +229,6 @@ export default function RevisarLoop({
         </div>
       )}
 
-      {/* AI Explanation */}
       <div className="rounded-2xl p-5 space-y-2" style={{ backgroundColor: bgColor }}>
         <div className="flex items-center gap-2 mb-1">
           <span className="text-lg">🤖</span>
@@ -249,7 +240,6 @@ export default function RevisarLoop({
         <p className="text-gray-700 text-sm leading-relaxed">{item.aiExplanation}</p>
       </div>
 
-      {/* Question + answer area (hidden when showing result) */}
       {!checkResult && (
         <>
           <div
@@ -288,7 +278,6 @@ export default function RevisarLoop({
         </>
       )}
 
-      {/* Result feedback */}
       {checkResult && (
         <div
           className={`rounded-2xl p-4 space-y-3 border-2 ${
