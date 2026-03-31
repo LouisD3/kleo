@@ -55,17 +55,15 @@ export default function ExplicarLoop({ content, accentColor, bgColor, initialAns
 
   return (
     <div className="space-y-6">
-      {/* Progress dots */}
-      <div className="flex gap-2 justify-center">
-        {Array.from({ length: totalConcepts }, (_, i) => (
-          <div
-            key={i}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              i < completedConcepts ? 'bg-green-500' : 'bg-gray-200'
-            }`}
-            style={i === conceptIndex && i >= completedConcepts ? { backgroundColor: accentColor } : {}}
-          />
-        ))}
+      {/* Progress bar */}
+      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+        <div
+          className="h-2 rounded-full transition-all duration-500 ease-out"
+          style={{
+            width: `${((conceptIndex + (questionIndex / QUESTIONS_PER_CONCEPT)) / totalConcepts) * 100}%`,
+            backgroundColor: accentColor,
+          }}
+        />
       </div>
 
       <p className="text-center text-sm text-gray-500 font-medium">

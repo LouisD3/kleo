@@ -49,23 +49,15 @@ export default function ConceptLoop({ content, accentColor, bgColor, onComplete 
 
   return (
     <div className="relative">
-      {/* Progress dots */}
-      <div className="flex gap-2 justify-center mb-6">
-        {content.conceptPages.map((_, i) => (
-          <div
-            key={i}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              completedDots[i]
-                ? 'bg-green-500 animate-pop-in scale-110'
-                : 'bg-gray-200'
-            }`}
-            style={
-              i === currentIndex && !completedDots[i]
-                ? { backgroundColor: accentColor }
-                : {}
-            }
-          />
-        ))}
+      {/* Progress bar */}
+      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-6">
+        <div
+          className="h-2 rounded-full transition-all duration-500 ease-out"
+          style={{
+            width: `${(completedDots.filter(Boolean).length / total) * 100}%`,
+            backgroundColor: accentColor,
+          }}
+        />
       </div>
 
       <p className="text-center text-sm text-gray-500 mb-4">

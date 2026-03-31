@@ -198,6 +198,17 @@ export default function RevisarLoop({
 
   return (
     <div className="space-y-5">
+      {/* Progress bar */}
+      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+        <div
+          className="h-2 rounded-full transition-all duration-500 ease-out"
+          style={{
+            width: `${(currentIndex / items.length) * 100}%`,
+            backgroundColor: accentColor,
+          }}
+        />
+      </div>
+
       <div className="flex items-center justify-between text-sm text-gray-500 font-medium">
         <span>
           Revisando concepto {currentIndex + 1} de {items.length}
