@@ -120,12 +120,7 @@ export default function RevisarLoop({
       const result: CheckResult = await res.json();
       setCheckResult(result);
 
-      if (result.correct) {
-        setTimeout(() => {
-          const fc = failedCountRef.current;
-          advanceToNext(fc);
-        }, 1500);
-      }
+      // correct: user clicks the button to advance
     } catch {
       setCheckResult({
         correct: false,
@@ -308,7 +303,15 @@ export default function RevisarLoop({
             </p>
           </div>
 
-          {!checkResult.correct && (
+          {checkResult.correct ? (
+            <button
+              onClick={() => advanceToNext(failedCountRef.current)}
+              className="w-full py-2.5 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
+              style={{ backgroundColor: '#22c55e' }}
+            >
+              Siguiente →
+            </button>
+          ) : (
             <button
               onClick={handleContinueAfterWrong}
               className="w-full py-2.5 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
