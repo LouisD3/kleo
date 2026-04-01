@@ -1,6 +1,7 @@
 'use client';
 
 import { Cap, CapState } from '@/lib/types';
+import { getCapRank, RANK_LABEL } from '@/lib/gamification';
 
 interface CapCardProps {
   cap: Cap;
@@ -43,6 +44,7 @@ export default function CapCard({ cap, capState, isActive, onClick }: CapCardPro
 
   // Star rating from final test
   const starRating = capState.finalTest.starRating;
+  const rank = getCapRank(capState);
 
   return (
     <div className="flex flex-col items-center relative">
@@ -132,6 +134,11 @@ export default function CapCard({ cap, capState, isActive, onClick }: CapCardPro
             >
               {cap.subtitle}
             </p>
+            {rank && !isLocked && (
+              <p className="text-xs mt-1 font-black" style={{ color: colors.dark }}>
+                {RANK_LABEL[rank]}
+              </p>
+            )}
           </div>
         </div>
 

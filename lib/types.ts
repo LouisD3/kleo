@@ -93,4 +93,32 @@ export interface CapState {
 export interface AppState {
   caps: Record<number, CapState>;
   totalXP: number;
+  unlockedBadgeIds: string[];   // NEW
+  dailyObjective: DailyObjective | null;  // NEW
+  lastXPForLevelCheck: number;  // NEW — pour détecter les level-ups
+}
+
+// ── Gamification ──────────────────────────────────────────────────────────────
+
+export interface Level {
+  level: number;       // 1-8
+  name: string;        // "Aprendiz", etc.
+  emoji: string;
+  minXP: number;
+}
+
+export interface BadgeDef {
+  id: string;
+  name: string;
+  description: string;
+  emoji: string;
+}
+
+export interface DailyObjective {
+  type: 'complete_chapter' | 'get_stars' | 'complete_2chapters';
+  description: string;
+  target: number;      // 1 or 2 (chapters) or 2 (stars level)
+  current: number;
+  date: string;        // YYYY-MM-DD
+  completed: boolean;
 }

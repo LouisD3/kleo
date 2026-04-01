@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { getLevelForXP } from '@/lib/gamification';
 
 interface XPBarProps {
   totalXP: number;
@@ -34,6 +35,7 @@ export default function XPBar({ totalXP, maxXP, newXP }: XPBarProps) {
   }, [newXP, totalXP]);
 
   const percentage = Math.min((displayXP / maxXP) * 100, 100);
+  const level = getLevelForXP(displayXP);
 
   return (
     <div className="relative w-full">
@@ -45,7 +47,7 @@ export default function XPBar({ totalXP, maxXP, newXP }: XPBarProps) {
           </span>
         </div>
         <span className="text-sm font-semibold text-gray-500">
-          Física Básica
+          Nv.{level.level} {level.name} {level.emoji}
         </span>
       </div>
 

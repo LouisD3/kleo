@@ -237,7 +237,7 @@ export default function RevisarLoop({
 
       <div className="rounded-2xl p-5 space-y-2" style={{ backgroundColor: bgColor }}>
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-lg">🤖</span>
+          <Mascot emotion="idle" variant="inline" size={32} />
           <span className="font-bold text-gray-700 text-sm">Explicación del tutor</span>
         </div>
         <p className="font-semibold text-xs text-gray-500 uppercase tracking-wide">

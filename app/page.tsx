@@ -1,15 +1,20 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { AppState, CapState, ChapterState, FinalTestState, LearningContent } from '@/lib/types';
+import { AppState, CapState, ChapterState, FinalTestState, LearningContent, Level } from '@/lib/types';
 import { CAPS } from '@/lib/caps';
 import { loadState, saveState, clearState, getInitialCapState } from '@/lib/storage';
+import { getLevelForXP, checkNewBadges, getOrCreateDailyObjective, updateDailyObjective } from '@/lib/gamification';
 import XPBar from '@/components/XPBar';
 import CapCard from '@/components/CapCard';
 import SubRoadmap from '@/components/SubRoadmap';
 import FeynmanLoop from '@/components/FeynmanLoop';
 import ConfettiCelebration from '@/components/ConfettiCelebration';
 import Mascot from '@/components/Mascot';
+import LevelUpPopup from '@/components/LevelUpPopup';
+import BadgesDisplay from '@/components/BadgesDisplay';
+import DailyObjectiveCard from '@/components/DailyObjective';
+import XPParticles from '@/components/XPParticles';
 
 const MAX_XP = CAPS.reduce((sum, c) => sum + c.xpReward, 0);
 
@@ -24,10 +29,14 @@ export default function Home() {
   const [newXP, setNewXP] = useState<number>(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [viewClosing, setViewClosing] = useState(false);
+  const [levelUpPopup, setLevelUpPopup] = useState<Level | null>(null);
+  const [sessionBadgeIds, setSessionBadgeIds] = useState<string[]>([]);
+  const [xpParticleTrigger, setXpParticleTrigger] = useState(0);
 
   useEffect(() => {
     const state = loadState();
-    setAppState(state);
+    const obj = getOrCreateDailyObjective(state);
+    setAppState({ ...state, dailyObjective: obj });
   }, []);
 
   useEffect(() => {
@@ -100,22 +109,43 @@ export default function Home() {
   // ── Completion handlers ────────────────────────────────────────────────────────
 
   const handleChapterComplete = useCallback(
-    (capId: number, chapterIndex: number, xpReward: number) => {
+    (capId: number, chapterIndex: number, xpReward: number, stars: 1 | 2 | 3, attemptCount: number) => {
       setNewXP(xpReward);
+      setXpParticleTrigger(t => t + 1);
 
       setAppState((prev) => {
         if (!prev) return prev;
+
         const capState = prev.caps[capId];
         const newChapters = capState.chapters.map((ch, i) =>
           i === chapterIndex ? { ...ch, phase: 'complete' as const } : ch
         );
+        const newCapState = { ...capState, chapters: newChapters };
+
+        const newBadgeIds = checkNewBadges(
+          { ...prev, caps: { ...prev.caps, [capId]: newCapState } },
+          { capId, isChapter: true, stars, attemptCount }
+        );
+
+        const dailyObj = getOrCreateDailyObjective(prev);
+        const updatedObjective = updateDailyObjective(dailyObj, { isChapter: true, stars });
+
+        const oldLevel = getLevelForXP(prev.totalXP);
+        const newTotalXP = prev.totalXP + xpReward;
+        const newLevel = getLevelForXP(newTotalXP);
+        if (newLevel.level > oldLevel.level) {
+          setTimeout(() => setLevelUpPopup(newLevel), 600);
+        }
+
+        setSessionBadgeIds(newBadgeIds);
+
         return {
           ...prev,
-          caps: {
-            ...prev.caps,
-            [capId]: { ...capState, chapters: newChapters },
-          },
-          totalXP: prev.totalXP + xpReward,
+          caps: { ...prev.caps, [capId]: newCapState },
+          totalXP: newTotalXP,
+          unlockedBadgeIds: [...(prev.unlockedBadgeIds ?? []), ...newBadgeIds],
+          dailyObjective: updatedObjective,
+          lastXPForLevelCheck: newTotalXP,
         };
       });
     },
@@ -123,9 +153,10 @@ export default function Home() {
   );
 
   const handleFinalTestComplete = useCallback(
-    (capId: number, xpReward: number) => {
+    (capId: number, xpReward: number, stars: 1 | 2 | 3, attemptCount: number) => {
       setShowConfetti(true);
       setNewXP(xpReward);
+      setXpParticleTrigger(t => t + 1);
 
       setAppState((prev) => {
         if (!prev) return prev;
@@ -145,16 +176,35 @@ export default function Home() {
           };
         }
 
+        const newBadgeIds = checkNewBadges(
+          { ...prev, caps: newCaps },
+          { capId, isChapter: false, stars, attemptCount }
+        );
+
+        const dailyObj = getOrCreateDailyObjective(prev);
+        const updatedObjective = updateDailyObjective(dailyObj, { isChapter: false, stars });
+
+        const oldLevel = getLevelForXP(prev.totalXP);
+        const newTotalXP = prev.totalXP + xpReward;
+        const newLevel = getLevelForXP(newTotalXP);
+        if (newLevel.level > oldLevel.level) {
+          setTimeout(() => setLevelUpPopup(newLevel), 600);
+        }
+
+        setSessionBadgeIds(newBadgeIds);
+
         return {
           ...prev,
           caps: newCaps,
-          totalXP: prev.totalXP + xpReward,
+          totalXP: newTotalXP,
+          unlockedBadgeIds: [...(prev.unlockedBadgeIds ?? []), ...newBadgeIds],
+          dailyObjective: updatedObjective,
+          lastXPForLevelCheck: newTotalXP,
         };
       });
 
       setTimeout(() => {
         setShowConfetti(false);
-        goBack('main');
         setTimeout(() => setNewXP(0), 500);
       }, 3500);
     },
@@ -246,6 +296,14 @@ export default function Home() {
     <div className="min-h-screen bg-[#F7F9FB] font-nunito">
       <ConfettiCelebration trigger={showConfetti} />
 
+      {/* Level-up popup */}
+      {levelUpPopup && (
+        <LevelUpPopup level={levelUpPopup} onClose={() => setLevelUpPopup(null)} />
+      )}
+
+      {/* XP Particles */}
+      <XPParticles xpGained={newXP} trigger={xpParticleTrigger} />
+
       {/* ── Main list ── */}
       <div className={view !== 'main' ? 'invisible' : ''}>
         <header className="sticky top-0 z-40 bg-white border-b-2 border-gray-100 shadow-sm">
@@ -272,6 +330,12 @@ export default function Home() {
         </header>
 
         <main className="max-w-lg mx-auto px-4 py-8">
+          {appState.dailyObjective && (
+            <div className="mb-6">
+              <DailyObjectiveCard objective={appState.dailyObjective} />
+            </div>
+          )}
+
           {allComplete ? (
             <div className="text-center py-12 animate-pop-in">
               <div className="flex justify-center mb-2">
@@ -285,7 +349,7 @@ export default function Home() {
             </div>
           ) : (
             <>
-              {/* Greeting — Option D */}
+              {/* Greeting */}
               <div className="flex items-center gap-4 bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 mb-8 animate-pop-in">
                 <Mascot variant="inline" emotion="idle" size={64} />
                 <div>
@@ -324,6 +388,10 @@ export default function Home() {
               </div>
             </>
           )}
+
+          <div className="mt-10">
+            <BadgesDisplay unlockedBadgeIds={appState.unlockedBadgeIds ?? []} />
+          </div>
         </main>
       </div>
 
@@ -375,7 +443,7 @@ export default function Home() {
       )}
 
       {/* ── Learning view (chapter or final test) ── */}
-      {view === 'learning' && learningContent && learningState && activeCap && (
+      {view === 'learning' && learningContent && learningState && activeCap && activeCapState && (
         <div
           className={`fixed inset-0 z-[60] bg-[#F7F9FB] flex flex-col ${
             viewClosing ? slideOut : slideIn
@@ -414,11 +482,13 @@ export default function Home() {
                 content={learningContent}
                 state={learningState}
                 mode={learningMode}
-                onComplete={(xp) => {
+                capState={activeCapState}
+                newBadgeIds={sessionBadgeIds}
+                onComplete={(xp, stars, attemptCount) => {
                   if (activeChapterIndex !== null) {
-                    handleChapterComplete(activeCap.id, activeChapterIndex, xp);
+                    handleChapterComplete(activeCap.id, activeChapterIndex, xp, stars, attemptCount);
                   } else {
-                    handleFinalTestComplete(activeCap.id, xp);
+                    handleFinalTestComplete(activeCap.id, xp, stars, attemptCount);
                   }
                 }}
                 onStateChange={(updates) => {
@@ -429,12 +499,14 @@ export default function Home() {
                   }
                 }}
                 onGoToList={() => {
+                  setSessionBadgeIds([]);
                   setNewXP(0);
                   goBack('sub-roadmap');
                 }}
                 onGoToNextChapter={
                   activeChapterIndex !== null && activeCap && activeChapterIndex + 1 < activeCap.chapters.length
                     ? () => {
+                        setSessionBadgeIds([]);
                         setNewXP(0);
                         navigateTo('learning', activeCap.id, activeChapterIndex + 1);
                       }

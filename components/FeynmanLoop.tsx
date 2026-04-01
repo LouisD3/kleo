@@ -1,18 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { LearningContent, ChapterState, FinalTestState, ExplicarAnswer } from '@/lib/types';
+import { LearningContent, ChapterState, FinalTestState, ExplicarAnswer, CapState } from '@/lib/types';
 import ConceptLoop from './ConceptLoop';
 import ExplicarLoop from './ExplicarLoop';
 import RevisarLoop from './RevisarLoop';
 import PhaseStepBar from './PhaseStepBar';
-import Mascot from './Mascot';
+import SessionSummary from './SessionSummary';
 
 interface FeynmanLoopProps {
   content: LearningContent;
   state: ChapterState | FinalTestState;
   mode: 'chapter' | 'final-test';
-  onComplete: (xp: number) => void;
+  capState: CapState;
+  newBadgeIds: string[];
+  onComplete: (xp: number, stars: 1 | 2 | 3, attemptCount: number) => void;
   onStateChange: (updates: Partial<ChapterState> | Partial<FinalTestState>) => void;
   onGoToList: () => void;
   onGoToNextChapter?: () => void;
@@ -34,6 +35,8 @@ export default function FeynmanLoop({
   content,
   state,
   mode,
+  capState,
+  newBadgeIds,
   onComplete,
   onStateChange,
   onGoToList,
@@ -41,7 +44,6 @@ export default function FeynmanLoop({
 }: FeynmanLoopProps) {
   const accentColor = COLOR_MAP[content.color] ?? '#1CB0F6';
   const bgColor = BG_MAP[content.color] ?? '#EFF9FE';
-
 
   // For chapter: 4 steps (0=conceptos, 1=explicar, 2=revisar, 3=complete)
   // For final-test: 3 steps (0=explicar, 1=revisar, 2=complete)
@@ -110,8 +112,6 @@ export default function FeynmanLoop({
   }
 
   // ── Revisar ──────────────────────────────────────────────────────────────────
-  // Pas de mascot flottant ici : EvaluatingScreen et la barre de feedback
-  // affichent chacun leur propre mascot inline.
   if (state.phase === 'revisar') {
     const stepIndex = mode === 'final-test' ? 1 : 2;
     return (
@@ -134,7 +134,7 @@ export default function FeynmanLoop({
           loopCount={state.attemptCount ?? 0}
           onComplete={(stars: 1 | 2 | 3) => {
             onStateChange({ phase: 'complete', starRating: stars });
-            onComplete(content.xpReward);
+            onComplete(content.xpReward, stars, state.attemptCount ?? 0);
           }}
           onLoopCountIncrement={() => {
             const newCount = (state.attemptCount ?? 0) + 1;
@@ -157,53 +157,20 @@ export default function FeynmanLoop({
   if (state.phase === 'complete') {
     const stepIndex = mode === 'final-test' ? 2 : 3;
 
-    const stars = state.starRating ?? 1;
-    const starDisplay = stars === 3 ? '⭐⭐⭐' : stars === 2 ? '⭐⭐' : '⭐';
-
     return (
-      <div className="text-center space-y-5 py-8">
+      <div className="space-y-4">
         <PhaseStepBar currentStep={stepIndex as 0 | 1 | 2 | 3} accentColor={accentColor} mode={mode} />
-
-        {/* Kleobot célèbre — grand format centré */}
-        <div className="flex justify-center mt-2">
-          <Mascot variant="inline" emotion="celebrate" size={140} />
-        </div>
-
-        <div>
-          <h2 className="font-black text-3xl text-gray-800">
-            {mode === 'final-test' ? '¡Cap completado!' : '¡Capítulo superado!'}
-          </h2>
-          <p className="text-gray-500 mt-2 text-base">
-            Dominaste <strong>{content.title}</strong>
-          </p>
-        </div>
-        <div
-          className="inline-block px-6 py-3 rounded-full font-black text-white text-xl shadow-lg"
-          style={{ background: accentColor }}
-        >
-          +{content.xpReward} XP {starDisplay}
-        </div>
-
-        {mode === 'chapter' && (
-          <div className="flex flex-col gap-3 pt-2">
-            {onGoToNextChapter && (
-              <button
-                onClick={onGoToNextChapter}
-                className="w-full py-3 rounded-2xl font-black text-white text-base transition-all active:scale-95"
-                style={{ backgroundColor: accentColor }}
-              >
-                Siguiente capítulo →
-              </button>
-            )}
-            <button
-              onClick={onGoToList}
-              className="w-full py-3 rounded-2xl font-black text-base transition-all active:scale-95 border-2 bg-white"
-              style={{ borderColor: accentColor, color: accentColor }}
-            >
-              ← Lista de capítulos
-            </button>
-          </div>
-        )}
+        <SessionSummary
+          mode={mode}
+          chapterTitle={content.title}
+          stars={state.starRating ?? 1}
+          xpEarned={content.xpReward}
+          capState={capState}
+          newBadgeIds={newBadgeIds}
+          accentColor={accentColor}
+          onGoToList={onGoToList}
+          onGoToNextChapter={onGoToNextChapter}
+        />
       </div>
     );
   }
