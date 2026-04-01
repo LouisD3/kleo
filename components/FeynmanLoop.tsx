@@ -1,10 +1,12 @@
 'use client';
 
+import { useState } from 'react';
 import { LearningContent, ChapterState, FinalTestState, ExplicarAnswer } from '@/lib/types';
 import ConceptLoop from './ConceptLoop';
 import ExplicarLoop from './ExplicarLoop';
 import RevisarLoop from './RevisarLoop';
 import PhaseStepBar from './PhaseStepBar';
+import Mascot from './Mascot';
 
 interface FeynmanLoopProps {
   content: LearningContent;
@@ -36,6 +38,7 @@ export default function FeynmanLoop({
   const accentColor = COLOR_MAP[content.color] ?? '#1CB0F6';
   const bgColor = BG_MAP[content.color] ?? '#EFF9FE';
 
+
   // For chapter: 4 steps (0=conceptos, 1=explicar, 2=revisar, 3=complete)
   // For final-test: 3 steps (0=explicar, 1=revisar, 2=complete)
   function getPhaseStep(): 0 | 1 | 2 | 3 {
@@ -62,6 +65,7 @@ export default function FeynmanLoop({
   if (mode === 'chapter' && state.phase === 'conceptos') {
     return (
       <div className="space-y-4">
+        <Mascot emotion="idle" />
         <PhaseStepBar currentStep={0} accentColor={accentColor} mode="chapter" />
         <ConceptLoop
           content={content}
@@ -78,6 +82,7 @@ export default function FeynmanLoop({
     const stepIndex = mode === 'final-test' ? 0 : 1;
     return (
       <div className="space-y-4">
+        <Mascot emotion="idle" />
         <PhaseStepBar currentStep={stepIndex as 0 | 1 | 2 | 3} accentColor={accentColor} mode={mode} />
         <div className="text-center mb-2">
           <h2 className="font-black text-xl text-gray-800">
@@ -103,6 +108,8 @@ export default function FeynmanLoop({
   }
 
   // ── Revisar ──────────────────────────────────────────────────────────────────
+  // Pas de mascot flottant ici : EvaluatingScreen et la barre de feedback
+  // affichent chacun leur propre mascot inline.
   if (state.phase === 'revisar') {
     const stepIndex = mode === 'final-test' ? 1 : 2;
     return (
@@ -147,15 +154,19 @@ export default function FeynmanLoop({
   // ── Complete ─────────────────────────────────────────────────────────────────
   if (state.phase === 'complete') {
     const stepIndex = mode === 'final-test' ? 2 : 3;
+
     const stars = state.starRating ?? 1;
     const starDisplay = stars === 3 ? '⭐⭐⭐' : stars === 2 ? '⭐⭐' : '⭐';
 
     return (
-      <div className="text-center space-y-6 py-8">
+      <div className="text-center space-y-5 py-8">
         <PhaseStepBar currentStep={stepIndex as 0 | 1 | 2 | 3} accentColor={accentColor} mode={mode} />
-        <div className="text-8xl animate-bounce">
-          {mode === 'final-test' ? '🏆' : '✅'}
+
+        {/* Kleobot célèbre — grand format centré */}
+        <div className="flex justify-center mt-2">
+          <Mascot variant="inline" emotion="celebrate" size={140} />
         </div>
+
         <div>
           <h2 className="font-black text-3xl text-gray-800">
             {mode === 'final-test' ? '¡Cap completado!' : '¡Capítulo superado!'}
@@ -169,11 +180,6 @@ export default function FeynmanLoop({
           style={{ background: accentColor }}
         >
           +{content.xpReward} XP {starDisplay}
-        </div>
-        <div className="flex justify-center gap-3 text-4xl animate-pulse">
-          <span>⭐</span>
-          <span>🌟</span>
-          <span>⭐</span>
         </div>
       </div>
     );

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ExplicarAnswer, RevisarItem } from '@/lib/types';
 import EvaluatingScreen from './EvaluatingScreen';
+import Mascot from './Mascot';
 
 interface Props {
   capTitle: string;
@@ -119,7 +120,6 @@ export default function RevisarLoop({
       if (!res.ok) throw new Error('API error');
       const result: CheckResult = await res.json();
       setCheckResult(result);
-
       // correct: user clicks the button to advance
     } catch {
       setCheckResult({
@@ -284,21 +284,24 @@ export default function RevisarLoop({
         </>
       )}
 
+      {/* Feedback card — inline */}
       {checkResult && (
         <div
-          className={`rounded-2xl p-4 space-y-3 border-2 ${
+          className={`rounded-2xl border-2 p-4 flex items-center gap-4 animate-pop-in ${
             checkResult.correct
               ? 'bg-green-50 border-green-300'
               : 'bg-red-50 border-red-300'
           }`}
         >
-          <div className="flex items-start gap-3">
-            <span className="text-2xl flex-shrink-0">{checkResult.correct ? '✅' : '❌'}</span>
-            <p
-              className={`font-semibold text-sm leading-snug ${
-                checkResult.correct ? 'text-green-700' : 'text-red-700'
-              }`}
-            >
+          <div className="flex-shrink-0">
+            <Mascot variant="inline" emotion={checkResult.correct ? 'celebrate' : 'sad'} size={56} />
+          </div>
+
+          <div className="flex-1 min-w-0">
+            <p className={`font-black text-base leading-tight ${checkResult.correct ? 'text-green-700' : 'text-red-700'}`}>
+              {checkResult.correct ? '¡Correcto!' : '¡Casi!'}
+            </p>
+            <p className={`text-xs mt-0.5 leading-snug ${checkResult.correct ? 'text-green-600' : 'text-red-600'}`}>
               {checkResult.feedback}
             </p>
           </div>
@@ -306,19 +309,19 @@ export default function RevisarLoop({
           {checkResult.correct ? (
             <button
               onClick={() => advanceToNext(failedCountRef.current)}
-              className="w-full py-2.5 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
-              style={{ backgroundColor: '#22c55e' }}
+              className="flex-shrink-0 px-5 py-2.5 rounded-2xl font-black text-white text-sm transition-all active:scale-95"
+              style={{ backgroundColor: '#16a34a' }}
             >
               Siguiente →
             </button>
           ) : (
             <button
               onClick={handleContinueAfterWrong}
-              className="w-full py-2.5 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
+              className="flex-shrink-0 px-5 py-2.5 rounded-2xl font-black text-white text-sm transition-all active:scale-95"
               style={{ backgroundColor: accentColor }}
             >
-              {!isRetrying && checkResult.newQuestion && checkResult.newQuestion.trim()
-                ? 'Intentar de nuevo →'
+              {!isRetrying && checkResult.newQuestion?.trim()
+                ? 'Reintentar →'
                 : 'Continuar →'}
             </button>
           )}

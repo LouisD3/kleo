@@ -9,6 +9,7 @@ import CapCard from '@/components/CapCard';
 import SubRoadmap from '@/components/SubRoadmap';
 import FeynmanLoop from '@/components/FeynmanLoop';
 import ConfettiCelebration from '@/components/ConfettiCelebration';
+import Mascot from '@/components/Mascot';
 
 const MAX_XP = CAPS.reduce((sum, c) => sum + c.xpReward, 0);
 
@@ -278,7 +279,9 @@ export default function Home() {
         <main className="max-w-lg mx-auto px-4 py-8">
           {allComplete ? (
             <div className="text-center py-12 animate-pop-in">
-              <div className="text-8xl mb-4">🎓</div>
+              <div className="flex justify-center mb-2">
+                <Mascot variant="inline" emotion="celebrate" size={120} />
+              </div>
               <h2 className="font-black text-3xl text-gray-800 mb-2">¡Física dominada!</h2>
               <p className="text-gray-500 text-base mb-2">
                 Completaste los 3 caps con {appState.totalXP} XP.
@@ -287,6 +290,21 @@ export default function Home() {
             </div>
           ) : (
             <>
+              {/* Greeting — Option D */}
+              <div className="flex items-center gap-4 bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 mb-8 animate-pop-in">
+                <Mascot variant="inline" emotion="idle" size={64} />
+                <div>
+                  <p className="font-black text-gray-800 text-sm leading-tight">
+                    {appState.totalXP === 0 ? '¡Bienvenido, físico!' : '¡Hola de nuevo!'}
+                  </p>
+                  <p className="text-gray-400 text-xs mt-0.5">
+                    {appState.totalXP === 0
+                      ? 'Empieza tu primer capítulo 🚀'
+                      : `Llevas ${appState.totalXP} XP — ¡sigue así!`}
+                  </p>
+                </div>
+              </div>
+
               <div className="text-center mb-8">
                 <h2 className="font-black text-2xl text-gray-800">Tu camino de aprendizaje</h2>
                 <p className="text-gray-500 text-sm mt-1">
