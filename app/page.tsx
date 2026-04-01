@@ -118,11 +118,6 @@ export default function Home() {
           totalXP: prev.totalXP + xpReward,
         };
       });
-
-      setTimeout(() => {
-        goBack('sub-roadmap');
-        setTimeout(() => setNewXP(0), 500);
-      }, 3500);
     },
     []
   );
@@ -433,6 +428,18 @@ export default function Home() {
                     updateFinalTestState(activeCap.id, updates as Partial<FinalTestState>);
                   }
                 }}
+                onGoToList={() => {
+                  setNewXP(0);
+                  goBack('sub-roadmap');
+                }}
+                onGoToNextChapter={
+                  activeChapterIndex !== null && activeCap && activeChapterIndex + 1 < activeCap.chapters.length
+                    ? () => {
+                        setNewXP(0);
+                        navigateTo('learning', activeCap.id, activeChapterIndex + 1);
+                      }
+                    : undefined
+                }
               />
             </div>
           </div>

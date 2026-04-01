@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { LearningContent } from '@/lib/types';
+import Mascot from './Mascot';
 
 interface Props {
   content: LearningContent;
@@ -15,7 +16,6 @@ export default function ConceptLoop({ content, accentColor, bgColor, onComplete 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [subStep, setSubStep] = useState<SubStep>('read');
   const [checkResult, setCheckResult] = useState<null | 'correct' | 'wrong'>(null);
-  const [showReward, setShowReward] = useState(false);
   const [completedDots, setCompletedDots] = useState<boolean[]>(
     new Array(content.conceptPages.length).fill(false)
   );
@@ -25,32 +25,29 @@ export default function ConceptLoop({ content, accentColor, bgColor, onComplete 
 
   function handleCheckAnswer(index: 0 | 1) {
     if (index === page.quickCheck.correctIndex) {
-      setCheckResult('correct');
-
       const newDots = [...completedDots];
       newDots[currentIndex] = true;
       setCompletedDots(newDots);
-
-      setShowReward(true);
-      setTimeout(() => {
-        setShowReward(false);
-        if (currentIndex + 1 < total) {
-          setCurrentIndex(currentIndex + 1);
-          setSubStep('read');
-          setCheckResult(null);
-        } else {
-          onComplete();
-        }
-      }, 1000);
+      setCheckResult('correct');
     } else {
       setCheckResult('wrong');
     }
   }
 
+  function handleAdvance() {
+    if (currentIndex + 1 < total) {
+      setCurrentIndex(currentIndex + 1);
+      setSubStep('read');
+      setCheckResult(null);
+    } else {
+      onComplete();
+    }
+  }
+
   return (
-    <div className="relative">
+    <div className="space-y-4">
       {/* Progress bar */}
-      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-6">
+      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
         <div
           className="h-2 rounded-full transition-all duration-500 ease-out"
           style={{
@@ -60,18 +57,9 @@ export default function ConceptLoop({ content, accentColor, bgColor, onComplete 
         />
       </div>
 
-      <p className="text-center text-sm text-gray-500 mb-4">
+      <p className="text-center text-sm text-gray-500">
         Concepto {currentIndex + 1} / {total}
       </p>
-
-      {/* Reward banner */}
-      {showReward && (
-        <div className="absolute inset-x-0 top-0 flex justify-center z-10 animate-slide-up">
-          <div className="bg-green-100 text-green-700 font-bold px-6 py-3 rounded-2xl shadow-lg text-lg">
-            ¡Correcto! 🌟
-          </div>
-        </div>
-      )}
 
       {/* Sub-step: Read */}
       {subStep === 'read' && (
@@ -94,31 +82,53 @@ export default function ConceptLoop({ content, accentColor, bgColor, onComplete 
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-gray-800 text-center">¿Lo entendiste?</h3>
           <p className="text-gray-700 text-center">{page.quickCheck.question}</p>
-          <div className="space-y-3">
-            {page.quickCheck.options.map((option, i) => (
-              <button
-                key={i}
-                onClick={() => handleCheckAnswer(i as 0 | 1)}
-                disabled={checkResult === 'correct'}
-                className={`w-full py-3 px-5 rounded-xl font-medium border-2 transition-all ${
-                  checkResult === 'correct' && i === page.quickCheck.correctIndex
-                    ? 'border-green-500 bg-green-50 text-green-700 animate-pop-in'
-                    : checkResult === 'wrong' && i !== page.quickCheck.correctIndex
-                    ? 'border-red-300 bg-red-50'
-                    : 'border-gray-200 bg-white hover:border-gray-400 text-gray-800'
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-          {checkResult === 'wrong' && (
-            <p className="text-sm text-amber-700 bg-amber-50 rounded-xl px-4 py-3 text-center">
-              💡 {page.quickCheck.hint}
-            </p>
+
+          {checkResult !== 'correct' && (
+            <div className="space-y-3">
+              {page.quickCheck.options.map((option, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleCheckAnswer(i as 0 | 1)}
+                  className={`w-full py-3 px-5 rounded-xl font-medium border-2 transition-all ${
+                    checkResult === 'wrong' && i !== page.quickCheck.correctIndex
+                      ? 'border-red-300 bg-red-50 text-gray-400'
+                      : 'border-gray-200 bg-white hover:border-gray-400 text-gray-800'
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
           )}
+
+          {checkResult === 'wrong' && (
+            <div className="rounded-2xl border-2 border-red-300 bg-red-50 p-4 flex items-center gap-4 animate-pop-in">
+              <div className="flex-shrink-0">
+                <Mascot variant="inline" emotion="sad" size={56} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-black text-base text-red-700">¡Casi!</p>
+                <p className="text-xs mt-0.5 text-red-600 leading-snug">{page.quickCheck.hint}</p>
+              </div>
+            </div>
+          )}
+
           {checkResult === 'correct' && (
-            <p className="text-center text-green-600 font-bold animate-pop-in">¡Correcto! ✅</p>
+            <div className="rounded-2xl border-2 border-green-300 bg-green-50 p-4 flex items-center gap-4 animate-pop-in">
+              <div className="flex-shrink-0">
+                <Mascot variant="inline" emotion="celebrate" size={56} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-black text-base text-green-700">¡Correcto!</p>
+              </div>
+              <button
+                onClick={handleAdvance}
+                className="flex-shrink-0 px-5 py-2.5 rounded-2xl font-black text-white text-sm transition-all active:scale-95"
+                style={{ backgroundColor: '#16a34a' }}
+              >
+                Siguiente →
+              </button>
+            </div>
           )}
         </div>
       )}

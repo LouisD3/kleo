@@ -14,6 +14,8 @@ interface FeynmanLoopProps {
   mode: 'chapter' | 'final-test';
   onComplete: (xp: number) => void;
   onStateChange: (updates: Partial<ChapterState> | Partial<FinalTestState>) => void;
+  onGoToList: () => void;
+  onGoToNextChapter?: () => void;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -34,6 +36,8 @@ export default function FeynmanLoop({
   mode,
   onComplete,
   onStateChange,
+  onGoToList,
+  onGoToNextChapter,
 }: FeynmanLoopProps) {
   const accentColor = COLOR_MAP[content.color] ?? '#1CB0F6';
   const bgColor = BG_MAP[content.color] ?? '#EFF9FE';
@@ -65,7 +69,6 @@ export default function FeynmanLoop({
   if (mode === 'chapter' && state.phase === 'conceptos') {
     return (
       <div className="space-y-4">
-        <Mascot emotion="idle" />
         <PhaseStepBar currentStep={0} accentColor={accentColor} mode="chapter" />
         <ConceptLoop
           content={content}
@@ -82,7 +85,6 @@ export default function FeynmanLoop({
     const stepIndex = mode === 'final-test' ? 0 : 1;
     return (
       <div className="space-y-4">
-        <Mascot emotion="idle" />
         <PhaseStepBar currentStep={stepIndex as 0 | 1 | 2 | 3} accentColor={accentColor} mode={mode} />
         <div className="text-center mb-2">
           <h2 className="font-black text-xl text-gray-800">
@@ -132,7 +134,7 @@ export default function FeynmanLoop({
           loopCount={state.attemptCount ?? 0}
           onComplete={(stars: 1 | 2 | 3) => {
             onStateChange({ phase: 'complete', starRating: stars });
-            setTimeout(() => onComplete(content.xpReward), 3500);
+            onComplete(content.xpReward);
           }}
           onLoopCountIncrement={() => {
             const newCount = (state.attemptCount ?? 0) + 1;
@@ -181,6 +183,27 @@ export default function FeynmanLoop({
         >
           +{content.xpReward} XP {starDisplay}
         </div>
+
+        {mode === 'chapter' && (
+          <div className="flex flex-col gap-3 pt-2">
+            {onGoToNextChapter && (
+              <button
+                onClick={onGoToNextChapter}
+                className="w-full py-3 rounded-2xl font-black text-white text-base transition-all active:scale-95"
+                style={{ backgroundColor: accentColor }}
+              >
+                Siguiente capítulo →
+              </button>
+            )}
+            <button
+              onClick={onGoToList}
+              className="w-full py-3 rounded-2xl font-black text-base transition-all active:scale-95 border-2 bg-white"
+              style={{ borderColor: accentColor, color: accentColor }}
+            >
+              ← Lista de capítulos
+            </button>
+          </div>
+        )}
       </div>
     );
   }

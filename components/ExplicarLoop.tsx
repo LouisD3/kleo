@@ -1,6 +1,17 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { LearningContent, ExplicarAnswer } from '@/lib/types';
+import Mascot from './Mascot';
+
+const ENCOURAGEMENTS = [
+  '¡Tú puedes! Escribe lo que sabes.',
+  'No hay respuestas incorrectas aquí.',
+  '¡Explícalo con tus propias palabras!',
+  '¡Piensa y escribe, lo estás haciendo genial!',
+  'Describe lo que recuerdas, ¡así se aprende!',
+  '¡Cada idea cuenta!',
+  'Sin prisa, con calma. ¡Tú lo tienes!',
+];
 
 interface Props {
   content: LearningContent;
@@ -23,6 +34,10 @@ export default function ExplicarLoop({ content, accentColor, bgColor, initialAns
 
   const totalConcepts = content.keyConcepts.length;
   const currentQuestion = content.explicarQuestions[conceptIndex]?.[questionIndex];
+  const encouragement = useMemo(
+    () => ENCOURAGEMENTS[(conceptIndex * 3 + questionIndex) % ENCOURAGEMENTS.length],
+    [conceptIndex, questionIndex]
+  );
   const isLast =
     conceptIndex === totalConcepts - 1 && questionIndex === QUESTIONS_PER_CONCEPT - 1;
   const completedConcepts = Math.floor(answers.length / QUESTIONS_PER_CONCEPT);
@@ -71,11 +86,14 @@ export default function ExplicarLoop({ content, accentColor, bgColor, initialAns
       </p>
 
       <div className="rounded-2xl p-5 space-y-3" style={{ backgroundColor: bgColor }}>
-        <div className="flex items-start gap-2">
-          <span className="text-xl flex-shrink-0">{content.emoji}</span>
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide leading-snug">
-            {content.keyConcepts[conceptIndex]}
-          </p>
+        <div className="flex items-center gap-3">
+          <Mascot variant="inline" emotion="idle" size={48} />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide leading-snug">
+              {content.keyConcepts[conceptIndex]}
+            </p>
+            <p className="text-xs text-gray-400 italic mt-0.5">{encouragement}</p>
+          </div>
         </div>
         <p className="text-gray-800 font-semibold text-base leading-snug">
           {currentQuestion?.question}
