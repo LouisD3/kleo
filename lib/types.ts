@@ -112,6 +112,7 @@ export interface BadgeDef {
   name: string;
   description: string;
   emoji: string;
+  xpReward: number;
 }
 
 export interface DailyObjective {

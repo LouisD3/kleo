@@ -22,16 +22,25 @@ export function getLevelForXP(xp: number): Level {
 }
 
 // ── Badges ────────────────────────────────────────────────────────────────────
+export const DAILY_OBJECTIVE_XP = 20;
+
 export const BADGE_DEFS: BadgeDef[] = [
-  { id: 'first_chapter',   name: 'Primera chispa',    description: 'Completaste tu primer capítulo',           emoji: '🔥' },
-  { id: 'three_stars',     name: 'Aprendiz veloz',    description: 'Completaste un capítulo con 3 estrellas',  emoji: '⭐' },
-  { id: 'persistent',      name: 'Sin rendirse',      description: 'Superaste un capítulo después de reintentar', emoji: '💪' },
-  { id: 'cap1_complete',   name: 'La Materia',        description: 'Completaste el Cap 1: La Materia',         emoji: '⚛️' },
-  { id: 'cap2_complete',   name: 'La Fuerza',         description: 'Completaste el Cap 2: La Fuerza',          emoji: '💪' },
-  { id: 'cap3_complete',   name: 'La Energía',        description: 'Completaste el Cap 3: La Energía',         emoji: '⚡' },
-  { id: 'perfectionist',   name: 'Perfeccionista',    description: 'Conseguiste 2+ estrellas en 5 capítulos',  emoji: '💎' },
-  { id: 'all_caps',        name: 'Genio total',       description: '¡Completaste todos los caps!',             emoji: '🏆' },
+  { id: 'first_chapter',   name: 'Primera chispa',    description: 'Completaste tu primer capítulo',              emoji: '🔥', xpReward: 10 },
+  { id: 'three_stars',     name: 'Aprendiz veloz',    description: 'Completaste un capítulo con 3 estrellas',     emoji: '⭐', xpReward: 10 },
+  { id: 'persistent',      name: 'Sin rendirse',      description: 'Superaste un capítulo después de reintentar', emoji: '💪', xpReward: 5  },
+  { id: 'cap1_complete',   name: 'La Materia',        description: 'Completaste el Cap 1: La Materia',            emoji: '⚛️', xpReward: 20 },
+  { id: 'cap2_complete',   name: 'La Fuerza',         description: 'Completaste el Cap 2: La Fuerza',             emoji: '💪', xpReward: 20 },
+  { id: 'cap3_complete',   name: 'La Energía',        description: 'Completaste el Cap 3: La Energía',            emoji: '⚡', xpReward: 20 },
+  { id: 'perfectionist',   name: 'Perfeccionista',    description: 'Conseguiste 2+ estrellas en 5 capítulos',     emoji: '💎', xpReward: 15 },
+  { id: 'all_caps',        name: 'Genio total',       description: '¡Completaste todos los caps!',                emoji: '🏆', xpReward: 25 },
 ];
+
+export function getBadgesXP(badgeIds: string[]): number {
+  return badgeIds.reduce((sum, id) => {
+    const def = BADGE_DEFS.find(b => b.id === id);
+    return sum + (def?.xpReward ?? 0);
+  }, 0);
+}
 
 // ── Cap rank ──────────────────────────────────────────────────────────────────
 export type CapRank = 'bronze' | 'silver' | 'gold';

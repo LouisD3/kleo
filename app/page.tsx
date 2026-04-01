@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { AppState, CapState, ChapterState, FinalTestState, LearningContent, Level } from '@/lib/types';
 import { CAPS } from '@/lib/caps';
 import { loadState, saveState, clearState, getInitialCapState } from '@/lib/storage';
-import { getLevelForXP, checkNewBadges, getOrCreateDailyObjective, updateDailyObjective } from '@/lib/gamification';
+import { getLevelForXP, checkNewBadges, getOrCreateDailyObjective, updateDailyObjective, getBadgesXP, DAILY_OBJECTIVE_XP } from '@/lib/gamification';
 import XPBar from '@/components/XPBar';
 import CapCard from '@/components/CapCard';
 import SubRoadmap from '@/components/SubRoadmap';
@@ -110,7 +110,6 @@ export default function Home() {
 
   const handleChapterComplete = useCallback(
     (capId: number, chapterIndex: number, xpReward: number, stars: 1 | 2 | 3, attemptCount: number) => {
-      setNewXP(xpReward);
       setXpParticleTrigger(t => t + 1);
 
       setAppState((prev) => {
@@ -129,15 +128,20 @@ export default function Home() {
 
         const dailyObj = getOrCreateDailyObjective(prev);
         const updatedObjective = updateDailyObjective(dailyObj, { isChapter: true, stars });
+        const dailyBonus = !dailyObj.completed && updatedObjective.completed ? DAILY_OBJECTIVE_XP : 0;
+
+        const badgeBonus = getBadgesXP(newBadgeIds);
+        const totalGained = xpReward + badgeBonus + dailyBonus;
 
         const oldLevel = getLevelForXP(prev.totalXP);
-        const newTotalXP = prev.totalXP + xpReward;
+        const newTotalXP = prev.totalXP + totalGained;
         const newLevel = getLevelForXP(newTotalXP);
         if (newLevel.level > oldLevel.level) {
           setTimeout(() => setLevelUpPopup(newLevel), 600);
         }
 
         setSessionBadgeIds(newBadgeIds);
+        setNewXP(totalGained);
 
         return {
           ...prev,
@@ -155,7 +159,6 @@ export default function Home() {
   const handleFinalTestComplete = useCallback(
     (capId: number, xpReward: number, stars: 1 | 2 | 3, attemptCount: number) => {
       setShowConfetti(true);
-      setNewXP(xpReward);
       setXpParticleTrigger(t => t + 1);
 
       setAppState((prev) => {
@@ -183,15 +186,20 @@ export default function Home() {
 
         const dailyObj = getOrCreateDailyObjective(prev);
         const updatedObjective = updateDailyObjective(dailyObj, { isChapter: false, stars });
+        const dailyBonus = !dailyObj.completed && updatedObjective.completed ? DAILY_OBJECTIVE_XP : 0;
+
+        const badgeBonus = getBadgesXP(newBadgeIds);
+        const totalGained = xpReward + badgeBonus + dailyBonus;
 
         const oldLevel = getLevelForXP(prev.totalXP);
-        const newTotalXP = prev.totalXP + xpReward;
+        const newTotalXP = prev.totalXP + totalGained;
         const newLevel = getLevelForXP(newTotalXP);
         if (newLevel.level > oldLevel.level) {
           setTimeout(() => setLevelUpPopup(newLevel), 600);
         }
 
         setSessionBadgeIds(newBadgeIds);
+        setNewXP(totalGained);
 
         return {
           ...prev,

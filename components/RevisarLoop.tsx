@@ -235,17 +235,6 @@ export default function RevisarLoop({
         </div>
       )}
 
-      <div className="rounded-2xl p-5 space-y-2" style={{ backgroundColor: bgColor }}>
-        <div className="flex items-center gap-2 mb-1">
-          <Mascot emotion="idle" variant="inline" size={32} />
-          <span className="font-bold text-gray-700 text-sm">Explicación del tutor</span>
-        </div>
-        <p className="font-semibold text-xs text-gray-500 uppercase tracking-wide">
-          {item.concept}
-        </p>
-        <p className="text-gray-700 text-sm leading-relaxed">{item.aiExplanation}</p>
-      </div>
-
       {!checkResult && (
         <>
           <div
@@ -287,29 +276,35 @@ export default function RevisarLoop({
       {/* Feedback card — inline */}
       {checkResult && (
         <div
-          className={`rounded-2xl border-2 p-4 flex items-center gap-4 animate-pop-in ${
+          className={`rounded-2xl border-2 p-4 space-y-3 animate-pop-in ${
             checkResult.correct
               ? 'bg-green-50 border-green-300'
               : 'bg-red-50 border-red-300'
           }`}
         >
-          <div className="flex-shrink-0">
+          {/* Mascot + verdict + feedback */}
+          <div className="flex items-start gap-3">
             <Mascot variant="inline" emotion={checkResult.correct ? 'celebrate' : 'sad'} size={56} />
+            <div className="flex-1 min-w-0">
+              <p className={`font-black text-base leading-tight ${checkResult.correct ? 'text-green-700' : 'text-red-700'}`}>
+                {checkResult.correct ? '¡Correcto!' : '¡Casi!'}
+              </p>
+              <p className={`text-sm mt-0.5 leading-snug ${checkResult.correct ? 'text-green-600' : 'text-red-600'}`}>
+                {checkResult.feedback}
+              </p>
+            </div>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <p className={`font-black text-base leading-tight ${checkResult.correct ? 'text-green-700' : 'text-red-700'}`}>
-              {checkResult.correct ? '¡Correcto!' : '¡Casi!'}
-            </p>
-            <p className={`text-xs mt-0.5 leading-snug ${checkResult.correct ? 'text-green-600' : 'text-red-600'}`}>
-              {checkResult.feedback}
-            </p>
+          {/* Divider + explanation */}
+          <div className={`border-t pt-3 ${checkResult.correct ? 'border-green-200' : 'border-red-200'}`}>
+            <p className="text-sm text-gray-700 leading-relaxed">{item.aiExplanation}</p>
           </div>
 
+          {/* Button */}
           {checkResult.correct ? (
             <button
               onClick={() => advanceToNext(failedCountRef.current)}
-              className="flex-shrink-0 px-5 py-2.5 rounded-2xl font-black text-white text-sm transition-all active:scale-95"
+              className="w-full py-3 rounded-2xl font-black text-white text-base transition-all active:scale-95"
               style={{ backgroundColor: '#16a34a' }}
             >
               Siguiente →
@@ -317,7 +312,7 @@ export default function RevisarLoop({
           ) : (
             <button
               onClick={handleContinueAfterWrong}
-              className="flex-shrink-0 px-5 py-2.5 rounded-2xl font-black text-white text-sm transition-all active:scale-95"
+              className="w-full py-3 rounded-2xl font-black text-white text-base transition-all active:scale-95"
               style={{ backgroundColor: accentColor }}
             >
               {!isRetrying && checkResult.newQuestion?.trim()

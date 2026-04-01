@@ -28,6 +28,9 @@ export default function BadgesDisplay({ unlockedBadgeIds }: Props) {
               <span className={`text-xs font-bold text-center leading-tight ${isUnlocked ? 'text-yellow-800' : 'text-gray-400'}`}>
                 {isUnlocked ? badge.name : '???'}
               </span>
+              {isUnlocked && (
+                <span className="text-[10px] font-bold text-yellow-600">+{badge.xpReward} XP</span>
+              )}
             </div>
           );
         })}

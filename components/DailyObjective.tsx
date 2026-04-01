@@ -1,5 +1,6 @@
 'use client';
 import { DailyObjective } from '@/lib/types';
+import { DAILY_OBJECTIVE_XP } from '@/lib/gamification';
 
 interface Props {
   objective: DailyObjective;
@@ -16,9 +17,14 @@ export default function DailyObjectiveCard({ objective, accentColor = '#1CB0F6' 
           <span className="text-base">🎯</span>
           <span className="font-black text-sm text-gray-700">Objetivo del día</span>
         </div>
-        {objective.completed && (
-          <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">¡Completado!</span>
-        )}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-yellow-600 bg-yellow-50 border border-yellow-200 px-2 py-0.5 rounded-full">
+            +{DAILY_OBJECTIVE_XP} XP
+          </span>
+          {objective.completed && (
+            <span className="text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">¡Completado!</span>
+          )}
+        </div>
       </div>
       <p className="text-sm text-gray-600">{objective.description}</p>
       <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
