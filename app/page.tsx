@@ -15,6 +15,8 @@ import LevelUpPopup from '@/components/LevelUpPopup';
 import BadgesDisplay from '@/components/BadgesDisplay';
 import DailyObjectiveCard from '@/components/DailyObjective';
 import XPParticles from '@/components/XPParticles';
+import BottomNav, { Tab } from '@/components/BottomNav';
+import ProfileTab from '@/components/ProfileTab';
 
 const MAX_XP = CAPS.reduce((sum, c) => sum + c.xpReward, 0);
 
@@ -32,6 +34,7 @@ export default function Home() {
   const [levelUpPopup, setLevelUpPopup] = useState<Level | null>(null);
   const [sessionBadgeIds, setSessionBadgeIds] = useState<string[]>([]);
   const [xpParticleTrigger, setXpParticleTrigger] = useState(0);
+  const [activeTab, setActiveTab] = useState<Tab>('inicio');
 
   useEffect(() => {
     const state = loadState();
@@ -312,95 +315,108 @@ export default function Home() {
       {/* XP Particles */}
       <XPParticles xpGained={newXP} trigger={xpParticleTrigger} />
 
-      {/* ── Main list ── */}
+      {/* ── Persistent header ── */}
       <div className={view !== 'main' ? 'invisible' : ''}>
         <header className="sticky top-0 z-40 bg-white border-b-2 border-gray-100 shadow-sm">
           <div className="max-w-lg mx-auto px-4 py-3">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 bg-blue-500 rounded-xl flex items-center justify-center text-xl shadow-sm">
-                  🔬
-                </div>
-                <div>
-                  <h1 className="font-black text-lg text-gray-800 leading-none">Kleo</h1>
-                  <p className="text-xs text-gray-400 font-semibold leading-none">Física Básica</p>
-                </div>
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-9 h-9 bg-blue-500 rounded-xl flex items-center justify-center text-xl shadow-sm">
+                🔬
               </div>
-              <button
-                onClick={handleReset}
-                className="text-xs text-gray-400 hover:text-red-400 font-bold transition-colors px-2 py-1 rounded-lg hover:bg-red-50"
-              >
-                Reiniciar
-              </button>
+              <div>
+                <h1 className="font-black text-lg text-gray-800 leading-none">Kleo</h1>
+                <p className="text-xs text-gray-400 font-semibold leading-none">Física Básica</p>
+              </div>
             </div>
             <XPBar totalXP={appState.totalXP} maxXP={MAX_XP} newXP={newXP} />
           </div>
         </header>
 
-        <main className="max-w-lg mx-auto px-4 py-8">
-          {appState.dailyObjective && (
-            <div className="mb-6">
-              <DailyObjectiveCard objective={appState.dailyObjective} />
-            </div>
-          )}
-
-          {allComplete ? (
-            <div className="text-center py-12 animate-pop-in">
-              <div className="flex justify-center mb-2">
-                <Mascot variant="inline" emotion="celebrate" size={120} />
+        {/* ── Tab: Inicio ── */}
+        {activeTab === 'inicio' && (
+          <main className="max-w-lg mx-auto px-4 py-6 pb-28">
+            {appState.dailyObjective && (
+              <div className="mb-6">
+                <DailyObjectiveCard objective={appState.dailyObjective} />
               </div>
-              <h2 className="font-black text-3xl text-gray-800 mb-2">¡Física dominada!</h2>
-              <p className="text-gray-500 text-base mb-2">
-                Completaste los 3 caps con {appState.totalXP} XP.
-              </p>
-              <p className="text-gray-400 text-sm">¡El método Feynman funciona! 🧠✨</p>
-            </div>
-          ) : (
-            <>
-              {/* Greeting */}
-              <div className="flex items-center gap-4 bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 mb-8 animate-pop-in">
-                <Mascot variant="inline" emotion="idle" size={64} />
-                <div>
-                  <p className="font-black text-gray-800 text-sm leading-tight">
-                    {appState.totalXP === 0 ? '¡Bienvenido, físico!' : '¡Hola de nuevo!'}
-                  </p>
-                  <p className="text-gray-400 text-xs mt-0.5">
-                    {appState.totalXP === 0
-                      ? 'Empieza tu primer capítulo 🚀'
-                      : `Llevas ${appState.totalXP} XP — ¡sigue así!`}
+            )}
+
+            {allComplete ? (
+              <div className="text-center py-12 animate-pop-in">
+                <div className="flex justify-center mb-2">
+                  <Mascot variant="inline" emotion="celebrate" size={120} />
+                </div>
+                <h2 className="font-black text-3xl text-gray-800 mb-2">¡Física dominada!</h2>
+                <p className="text-gray-500 text-base mb-2">
+                  Completaste los 3 caps con {appState.totalXP} XP.
+                </p>
+                <p className="text-gray-400 text-sm">¡El método Feynman funciona! 🧠✨</p>
+              </div>
+            ) : (
+              <>
+                {/* Greeting */}
+                <div className="flex items-center gap-4 bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 mb-6 animate-pop-in">
+                  <Mascot variant="inline" emotion="idle" size={64} />
+                  <div>
+                    <p className="font-black text-gray-800 text-sm leading-tight">
+                      {appState.totalXP === 0 ? '¡Bienvenido, físico!' : '¡Hola de nuevo!'}
+                    </p>
+                    <p className="text-gray-400 text-xs mt-0.5">
+                      {appState.totalXP === 0
+                        ? 'Empieza tu primer capítulo 🚀'
+                        : `Llevas ${appState.totalXP} XP — ¡sigue así!`}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-center mb-6">
+                  <h2 className="font-black text-2xl text-gray-800">Tu camino de aprendizaje</h2>
+                  <p className="text-gray-500 text-sm mt-1">
+                    Completa cada cap para desbloquear el siguiente
                   </p>
                 </div>
-              </div>
 
-              <div className="text-center mb-8">
-                <h2 className="font-black text-2xl text-gray-800">Tu camino de aprendizaje</h2>
-                <p className="text-gray-500 text-sm mt-1">
-                  Completa cada cap para desbloquear el siguiente
-                </p>
-              </div>
+                <div className="flex flex-col items-center space-y-0">
+                  {CAPS.map((cap) => (
+                    <CapCard
+                      key={cap.id}
+                      cap={cap}
+                      capState={appState.caps[cap.id]}
+                      isActive={activeCapId === cap.id}
+                      onClick={() => handleCapClick(cap.id)}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </main>
+        )}
 
-              <div className="flex flex-col items-center space-y-0">
-                {CAPS.map((cap) => (
-                  <CapCard
-                    key={cap.id}
-                    cap={cap}
-                    capState={appState.caps[cap.id]}
-                    isActive={activeCapId === cap.id}
-                    onClick={() => handleCapClick(cap.id)}
-                  />
-                ))}
-              </div>
-
-              <div className="mt-10 text-center text-sm text-gray-400 font-semibold">
-                <p>💡 Toca un cap para ver sus capítulos</p>
-              </div>
-            </>
-          )}
-
-          <div className="mt-10">
+        {/* ── Tab: Logros ── */}
+        {activeTab === 'logros' && (
+          <main className="max-w-lg mx-auto px-4 py-6 pb-28">
+            <div className="text-center mb-6">
+              <h2 className="font-black text-2xl text-gray-800">Tus logros</h2>
+              <p className="text-gray-500 text-sm mt-1">
+                {(appState.unlockedBadgeIds ?? []).length} de 8 desbloqueados
+              </p>
+            </div>
             <BadgesDisplay unlockedBadgeIds={appState.unlockedBadgeIds ?? []} />
-          </div>
-        </main>
+          </main>
+        )}
+
+        {/* ── Tab: Perfil ── */}
+        {activeTab === 'perfil' && (
+          <main className="max-w-lg mx-auto px-4 pb-28">
+            <ProfileTab
+              appState={appState}
+              maxXP={MAX_XP}
+              onReset={handleReset}
+            />
+          </main>
+        )}
+
+        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
       {/* ── Sub-roadmap ── */}

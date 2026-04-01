@@ -19,7 +19,7 @@ interface Props {
 
 interface CheckResult {
   correct: boolean;
-  feedback: string;
+  message: string[];
   newQuestion: string | null;
 }
 
@@ -124,7 +124,7 @@ export default function RevisarLoop({
     } catch {
       setCheckResult({
         correct: false,
-        feedback: 'Hubo un error. Por favor intenta de nuevo.',
+        message: ['Hubo un error. Por favor intenta de nuevo.'],
         newQuestion: null,
       });
     } finally {
@@ -238,13 +238,18 @@ export default function RevisarLoop({
       {!checkResult && (
         <>
           <div
-            className="rounded-2xl border-2 p-4"
+            className="rounded-2xl border-2 p-4 flex items-start gap-3"
             style={{ borderColor: accentColor }}
           >
-            <p className="font-semibold text-gray-800 text-sm leading-snug">{currentQuestion}</p>
-            {isRetrying && (
-              <p className="text-xs text-gray-400 mt-1">Nueva pregunta — ¡una oportunidad más!</p>
-            )}
+            <div className="flex-shrink-0">
+              <Mascot variant="inline" emotion="idle" size={48} />
+            </div>
+            <div className="flex-1 min-w-0 pt-1">
+              <p className="font-semibold text-gray-800 text-sm leading-snug">{currentQuestion}</p>
+              {isRetrying && (
+                <p className="text-xs text-gray-400 mt-1">Nueva pregunta — ¡una oportunidad más!</p>
+              )}
+            </div>
           </div>
 
           <textarea
@@ -276,29 +281,29 @@ export default function RevisarLoop({
       {/* Feedback card — inline */}
       {checkResult && (
         <div
-          className={`rounded-2xl border-2 p-4 space-y-3 animate-pop-in ${
+          className={`rounded-2xl border-2 p-5 space-y-4 animate-pop-in ${
             checkResult.correct
               ? 'bg-green-50 border-green-300'
-              : 'bg-red-50 border-red-300'
+              : 'bg-yellow-50 border-yellow-300'
           }`}
         >
-          {/* Mascot + verdict + feedback */}
-          <div className="flex items-start gap-3">
-            <Mascot variant="inline" emotion={checkResult.correct ? 'celebrate' : 'sad'} size={56} />
-            <div className="flex-1 min-w-0">
-              <p className={`font-black text-base leading-tight ${checkResult.correct ? 'text-green-700' : 'text-red-700'}`}>
-                {checkResult.correct ? '¡Correcto!' : '¡Casi!'}
-              </p>
-              <p className={`text-sm mt-0.5 leading-snug ${checkResult.correct ? 'text-green-600' : 'text-red-600'}`}>
-                {checkResult.feedback}
-              </p>
-            </div>
+          {/* Mascot + verdict — centered */}
+          <div className="flex flex-col items-center gap-2">
+            <Mascot variant="inline" emotion={checkResult.correct ? 'celebrate' : 'thinking'} size={72} />
+            <p className={`font-black text-xl leading-tight ${checkResult.correct ? 'text-green-700' : 'text-yellow-700'}`}>
+              {checkResult.correct ? '¡Correcto!' : '¡Casi!'}
+            </p>
           </div>
 
-          {/* Divider + explanation */}
-          <div className={`border-t pt-3 ${checkResult.correct ? 'border-green-200' : 'border-red-200'}`}>
-            <p className="text-sm text-gray-700 leading-relaxed">{item.aiExplanation}</p>
-          </div>
+          {/* Bullet points */}
+          <ul className="space-y-2">
+            {checkResult.message.map((point, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-gray-700 leading-snug">
+                <span className={`mt-0.5 font-black ${checkResult.correct ? 'text-green-500' : 'text-yellow-500'}`}>•</span>
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
 
           {/* Button */}
           {checkResult.correct ? (
