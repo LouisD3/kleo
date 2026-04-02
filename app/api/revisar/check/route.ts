@@ -17,18 +17,25 @@ export async function POST(req: Request) {
     const prompt = `Eres un tutor de física para estudiantes de 10 a 14 años, evaluando una respuesta sobre "${capTitle}".
 
 Concepto evaluado: "${concept}"
-Explicación que recibió el estudiante: "${aiExplanation}"
-Pregunta: "${targetedQuestion}"
+Explicación de referencia: "${aiExplanation}"
+Pregunta hecha al estudiante: "${targetedQuestion}"
 Respuesta del estudiante: "${studentAnswer}"
 
 Evalúa si la respuesta demuestra comprensión correcta del concepto. Sé generoso: si la idea central es correcta aunque no sea perfecta o completa, considérala correcta.
 
-Si es incorrecta, genera UNA nueva pregunta más sencilla sobre el mismo concepto para darle otra oportunidad al estudiante.
+Escribe exactamente 2 o 3 puntos cortos que:
+- El primero reaccione a la respuesta del estudiante de forma alentadora y positiva (nunca negativa)
+- Los siguientes expliquen o refuercen el concepto usando una analogía cotidiana
+- Si es incorrecta: guíen al estudiante sin revelar la respuesta directamente
+- Si es correcta: confirmen y profundicen un poco la comprensión
+- Cada punto debe ser una sola oración, corta y clara, para estudiantes de 10-14 años
+
+Si es incorrecta, genera también UNA nueva pregunta más sencilla sobre el mismo concepto.
 
 Responde ÚNICAMENTE con JSON válido, sin texto adicional:
 {
   "correct": <true o false>,
-  "feedback": "<retroalimentación breve y alentadora, máximo 2 oraciones>",
+  "message": ["<punto 1>", "<punto 2>", "<punto 3 opcional>"],
   "newQuestion": <"nueva pregunta más sencilla" | null>
 }
 

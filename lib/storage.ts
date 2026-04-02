@@ -34,6 +34,9 @@ export function getInitialAppState(): AppState {
       CAPS.map((cap) => [cap.id, getInitialCapState(cap.id)])
     ),
     totalXP: 0,
+    unlockedBadgeIds: [],
+    dailyObjective: null,
+    lastXPForLevelCheck: 0,
   };
 }
 
@@ -61,6 +64,9 @@ export function loadState(): AppState {
       }
     }
     if (typeof parsed.totalXP !== 'number') parsed.totalXP = 0;
+    if (!Array.isArray(parsed.unlockedBadgeIds)) parsed.unlockedBadgeIds = [];
+    if (parsed.lastXPForLevelCheck === undefined) parsed.lastXPForLevelCheck = 0;
+    if (parsed.dailyObjective === undefined) parsed.dailyObjective = null;
     return parsed;
   } catch {
     return getInitialAppState();

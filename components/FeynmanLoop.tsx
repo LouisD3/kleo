@@ -1,17 +1,24 @@
 'use client';
 
-import { LearningContent, ChapterState, FinalTestState, ExplicarAnswer } from '@/lib/types';
+import { LearningContent, ChapterState, FinalTestState, ExplicarAnswer, CapState } from '@/lib/types';
 import ConceptLoop from './ConceptLoop';
 import ExplicarLoop from './ExplicarLoop';
 import RevisarLoop from './RevisarLoop';
 import PhaseStepBar from './PhaseStepBar';
+import SessionSummary from './SessionSummary';
+import ConfettiCelebration from './ConfettiCelebration';
 
 interface FeynmanLoopProps {
   content: LearningContent;
   state: ChapterState | FinalTestState;
   mode: 'chapter' | 'final-test';
-  onComplete: (xp: number) => void;
+  capState: CapState;
+  newBadgeIds: string[];
+  onComplete: (xp: number, stars: 1 | 2 | 3, attemptCount: number) => void;
   onStateChange: (updates: Partial<ChapterState> | Partial<FinalTestState>) => void;
+  onGoToList: () => void;
+  onGoToNextChapter?: () => void;
+  onRetry?: () => void;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -30,8 +37,13 @@ export default function FeynmanLoop({
   content,
   state,
   mode,
+  capState,
+  newBadgeIds,
   onComplete,
   onStateChange,
+  onGoToList,
+  onGoToNextChapter,
+  onRetry,
 }: FeynmanLoopProps) {
   const accentColor = COLOR_MAP[content.color] ?? '#1CB0F6';
   const bgColor = BG_MAP[content.color] ?? '#EFF9FE';
@@ -125,7 +137,7 @@ export default function FeynmanLoop({
           loopCount={state.attemptCount ?? 0}
           onComplete={(stars: 1 | 2 | 3) => {
             onStateChange({ phase: 'complete', starRating: stars });
-            setTimeout(() => onComplete(content.xpReward), 3500);
+            onComplete(content.xpReward, stars, state.attemptCount ?? 0);
           }}
           onLoopCountIncrement={() => {
             const newCount = (state.attemptCount ?? 0) + 1;
@@ -147,34 +159,23 @@ export default function FeynmanLoop({
   // ── Complete ─────────────────────────────────────────────────────────────────
   if (state.phase === 'complete') {
     const stepIndex = mode === 'final-test' ? 2 : 3;
-    const stars = state.starRating ?? 1;
-    const starDisplay = stars === 3 ? '⭐⭐⭐' : stars === 2 ? '⭐⭐' : '⭐';
 
     return (
-      <div className="text-center space-y-6 py-8">
+      <div className="space-y-4">
+        <ConfettiCelebration trigger subtle />
         <PhaseStepBar currentStep={stepIndex as 0 | 1 | 2 | 3} accentColor={accentColor} mode={mode} />
-        <div className="text-8xl animate-bounce">
-          {mode === 'final-test' ? '🏆' : '✅'}
-        </div>
-        <div>
-          <h2 className="font-black text-3xl text-gray-800">
-            {mode === 'final-test' ? '¡Cap completado!' : '¡Capítulo superado!'}
-          </h2>
-          <p className="text-gray-500 mt-2 text-base">
-            Dominaste <strong>{content.title}</strong>
-          </p>
-        </div>
-        <div
-          className="inline-block px-6 py-3 rounded-full font-black text-white text-xl shadow-lg"
-          style={{ background: accentColor }}
-        >
-          +{content.xpReward} XP {starDisplay}
-        </div>
-        <div className="flex justify-center gap-3 text-4xl animate-pulse">
-          <span>⭐</span>
-          <span>🌟</span>
-          <span>⭐</span>
-        </div>
+        <SessionSummary
+          mode={mode}
+          chapterTitle={content.title}
+          stars={state.starRating ?? 1}
+          xpEarned={content.xpReward}
+          capState={capState}
+          newBadgeIds={newBadgeIds}
+          accentColor={accentColor}
+          onGoToList={onGoToList}
+          onGoToNextChapter={onGoToNextChapter}
+          onRetry={onRetry}
+        />
       </div>
     );
   }

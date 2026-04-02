@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ExplicarAnswer, RevisarItem } from '@/lib/types';
 import EvaluatingScreen from './EvaluatingScreen';
+import Mascot from './Mascot';
 
 interface Props {
   capTitle: string;
@@ -18,7 +19,7 @@ interface Props {
 
 interface CheckResult {
   correct: boolean;
-  feedback: string;
+  message: string[];
   newQuestion: string | null;
 }
 
@@ -119,12 +120,11 @@ export default function RevisarLoop({
       if (!res.ok) throw new Error('API error');
       const result: CheckResult = await res.json();
       setCheckResult(result);
-
       // correct: user clicks the button to advance
     } catch {
       setCheckResult({
         correct: false,
-        feedback: 'Hubo un error. Por favor intenta de nuevo.',
+        message: ['Hubo un error. Por favor intenta de nuevo.'],
         newQuestion: null,
       });
     } finally {
@@ -235,27 +235,21 @@ export default function RevisarLoop({
         </div>
       )}
 
-      <div className="rounded-2xl p-5 space-y-2" style={{ backgroundColor: bgColor }}>
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-lg">🤖</span>
-          <span className="font-bold text-gray-700 text-sm">Explicación del tutor</span>
-        </div>
-        <p className="font-semibold text-xs text-gray-500 uppercase tracking-wide">
-          {item.concept}
-        </p>
-        <p className="text-gray-700 text-sm leading-relaxed">{item.aiExplanation}</p>
-      </div>
-
       {!checkResult && (
         <>
           <div
-            className="rounded-2xl border-2 p-4"
+            className="rounded-2xl border-2 p-4 flex items-start gap-3"
             style={{ borderColor: accentColor }}
           >
-            <p className="font-semibold text-gray-800 text-sm leading-snug">{currentQuestion}</p>
-            {isRetrying && (
-              <p className="text-xs text-gray-400 mt-1">Nueva pregunta — ¡una oportunidad más!</p>
-            )}
+            <div className="flex-shrink-0">
+              <Mascot variant="inline" emotion="idle" size={48} />
+            </div>
+            <div className="flex-1 min-w-0 pt-1">
+              <p className="font-semibold text-gray-800 text-sm leading-snug">{currentQuestion}</p>
+              {isRetrying && (
+                <p className="text-xs text-gray-400 mt-1">Nueva pregunta — ¡una oportunidad más!</p>
+              )}
+            </div>
           </div>
 
           <textarea
@@ -284,41 +278,50 @@ export default function RevisarLoop({
         </>
       )}
 
+      {/* Feedback card — inline */}
       {checkResult && (
         <div
-          className={`rounded-2xl p-4 space-y-3 border-2 ${
+          className={`rounded-2xl border-2 p-5 space-y-4 animate-pop-in ${
             checkResult.correct
               ? 'bg-green-50 border-green-300'
-              : 'bg-red-50 border-red-300'
+              : 'bg-yellow-50 border-yellow-300'
           }`}
         >
-          <div className="flex items-start gap-3">
-            <span className="text-2xl flex-shrink-0">{checkResult.correct ? '✅' : '❌'}</span>
-            <p
-              className={`font-semibold text-sm leading-snug ${
-                checkResult.correct ? 'text-green-700' : 'text-red-700'
-              }`}
-            >
-              {checkResult.feedback}
+          {/* Mascot + verdict — centered */}
+          <div className="flex flex-col items-center gap-2">
+            <Mascot variant="inline" emotion={checkResult.correct ? 'celebrate' : 'thinking'} size={72} />
+            <p className={`font-black text-xl leading-tight ${checkResult.correct ? 'text-green-700' : 'text-yellow-700'}`}>
+              {checkResult.correct ? '¡Correcto!' : '¡Casi!'}
             </p>
           </div>
 
+          {/* Bullet points */}
+          <ul className="space-y-2">
+            {checkResult.message.map((point, i) => (
+              <li key={i} className="flex items-start gap-2 text-sm text-gray-700 leading-snug">
+                <span className={`mt-0.5 font-black ${checkResult.correct ? 'text-green-500' : 'text-yellow-500'}`}>•</span>
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+
+          {/* Button */}
           {checkResult.correct ? (
             <button
               onClick={() => advanceToNext(failedCountRef.current)}
-              className="w-full py-2.5 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
-              style={{ backgroundColor: '#22c55e' }}
+              className="w-full py-3 rounded-2xl font-black text-white text-base transition-all active:scale-95"
+              style={{ backgroundColor: '#16a34a' }}
             >
               Siguiente →
             </button>
           ) : (
             <button
               onClick={handleContinueAfterWrong}
-              className="w-full py-2.5 rounded-xl font-bold text-white text-sm transition-all active:scale-95"
+              className="w-full py-3 rounded-2xl font-black text-white text-base transition-all active:scale-95"
               style={{ backgroundColor: accentColor }}
             >
-              {!isRetrying && checkResult.newQuestion && checkResult.newQuestion.trim()
-                ? 'Intentar de nuevo →'
+              {!isRetrying && checkResult.newQuestion?.trim()
+                ? 'Reintentar →'
                 : 'Continuar →'}
             </button>
           )}
