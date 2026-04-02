@@ -157,11 +157,6 @@ function MascotSVG({ emotion, size = 80 }: { emotion: MascotEmotion; size?: numb
   const h = Math.round(size * (112 / 80));
   return (
     <div className="relative">
-      {emotion === 'celebrate' && (
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex gap-2 text-sm mascot-sparkle pointer-events-none">
-          <span>✨</span><span>🌟</span><span>✨</span>
-        </div>
-      )}
       {emotion === 'thinking' && (
         <div className="absolute -top-5 right-1 text-xs font-black text-blue-400 tracking-widest mascot-dots pointer-events-none">
           •••

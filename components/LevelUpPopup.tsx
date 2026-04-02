@@ -1,5 +1,4 @@
 'use client';
-import { useEffect } from 'react';
 import { Level } from '@/lib/types';
 import Mascot from './Mascot';
 
@@ -9,10 +8,6 @@ interface Props {
 }
 
 export default function LevelUpPopup({ level, onClose }: Props) {
-  useEffect(() => {
-    const t = setTimeout(onClose, 3500);
-    return () => clearTimeout(t);
-  }, [onClose]);
 
   return (
     <div

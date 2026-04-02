@@ -6,6 +6,7 @@ import ExplicarLoop from './ExplicarLoop';
 import RevisarLoop from './RevisarLoop';
 import PhaseStepBar from './PhaseStepBar';
 import SessionSummary from './SessionSummary';
+import ConfettiCelebration from './ConfettiCelebration';
 
 interface FeynmanLoopProps {
   content: LearningContent;
@@ -17,6 +18,7 @@ interface FeynmanLoopProps {
   onStateChange: (updates: Partial<ChapterState> | Partial<FinalTestState>) => void;
   onGoToList: () => void;
   onGoToNextChapter?: () => void;
+  onRetry?: () => void;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -41,6 +43,7 @@ export default function FeynmanLoop({
   onStateChange,
   onGoToList,
   onGoToNextChapter,
+  onRetry,
 }: FeynmanLoopProps) {
   const accentColor = COLOR_MAP[content.color] ?? '#1CB0F6';
   const bgColor = BG_MAP[content.color] ?? '#EFF9FE';
@@ -159,6 +162,7 @@ export default function FeynmanLoop({
 
     return (
       <div className="space-y-4">
+        <ConfettiCelebration trigger subtle />
         <PhaseStepBar currentStep={stepIndex as 0 | 1 | 2 | 3} accentColor={accentColor} mode={mode} />
         <SessionSummary
           mode={mode}
@@ -170,6 +174,7 @@ export default function FeynmanLoop({
           accentColor={accentColor}
           onGoToList={onGoToList}
           onGoToNextChapter={onGoToNextChapter}
+          onRetry={onRetry}
         />
       </div>
     );

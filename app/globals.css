@@ -117,7 +117,7 @@ body {
 }
 
 .mascot-float     { animation: mascot-float     2.4s ease-in-out infinite; }
-.mascot-celebrate { animation: mascot-celebrate 0.75s ease-in-out infinite; }
+.mascot-celebrate { animation: mascot-celebrate 0.75s ease-in-out 1, mascot-float 2.4s ease-in-out 0.75s infinite; }
 .mascot-think     { animation: mascot-think     2s   ease-in-out infinite; }
 .mascot-sad       { animation: mascot-sad       3s   ease-in-out infinite; }
 .mascot-sparkle   { animation: mascot-sparkle   0.8s ease-in-out infinite; }

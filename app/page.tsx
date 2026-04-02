@@ -335,12 +335,6 @@ export default function Home() {
         {/* ── Tab: Inicio ── */}
         {activeTab === 'inicio' && (
           <main className="max-w-lg mx-auto px-4 py-6 pb-28">
-            {appState.dailyObjective && (
-              <div className="mb-6">
-                <DailyObjectiveCard objective={appState.dailyObjective} />
-              </div>
-            )}
-
             {allComplete ? (
               <div className="text-center py-12 animate-pop-in">
                 <div className="flex justify-center mb-2">
@@ -355,7 +349,7 @@ export default function Home() {
             ) : (
               <>
                 {/* Greeting */}
-                <div className="flex items-center gap-4 bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 mb-6 animate-pop-in">
+                <div className="flex items-center gap-4 bg-white rounded-2xl px-4 py-3 shadow-sm border border-gray-100 mb-4 animate-pop-in">
                   <Mascot variant="inline" emotion="idle" size={64} />
                   <div>
                     <p className="font-black text-gray-800 text-sm leading-tight">
@@ -368,6 +362,12 @@ export default function Home() {
                     </p>
                   </div>
                 </div>
+
+                {appState.dailyObjective && (
+                  <div className="mb-6">
+                    <DailyObjectiveCard objective={appState.dailyObjective} />
+                  </div>
+                )}
 
                 <div className="text-center mb-6">
                   <h2 className="font-black text-2xl text-gray-800">Tu camino de aprendizaje</h2>
@@ -527,6 +527,20 @@ export default function Home() {
                   setNewXP(0);
                   goBack('sub-roadmap');
                 }}
+                onRetry={
+                  activeChapterIndex !== null
+                    ? () => {
+                        setSessionBadgeIds([]);
+                        setNewXP(0);
+                        updateChapterState(activeCap.id, activeChapterIndex, {
+                          phase: 'conceptos',
+                          explicarAnswers: [],
+                          attemptCount: 0,
+                          starRating: undefined,
+                        });
+                      }
+                    : undefined
+                }
                 onGoToNextChapter={
                   activeChapterIndex !== null && activeCap && activeChapterIndex + 1 < activeCap.chapters.length
                     ? () => {
